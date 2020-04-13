@@ -1,4 +1,7 @@
 .calendar {
+  display: flex;
+  flex-wrap: wrap;
+  // flex-direction: column;
   td {
     // &:hover {
     //   background-color: yellow;
@@ -56,6 +59,7 @@
   &-column {
     padding: 0 1rem;
     border: 1px solid black;
+    width: 12.5%;
   }
   &-event {
     overflow: visible;
