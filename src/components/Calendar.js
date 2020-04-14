@@ -110,7 +110,7 @@ function Calendar() {
             <th onClick={() => handleWeekChange('back')}>{'<'}</th>
             {weekDays.map((day) => (
               <th key={day.date.ts}>
-                {day.formatted.letters}
+                <span>{day.formatted.letters}</span>
                 <br />
                 <span className={
                   today.hasSame(day.date, 'day') ?

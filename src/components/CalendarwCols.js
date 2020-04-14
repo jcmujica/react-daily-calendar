@@ -4,7 +4,7 @@ import { DateTime, Duration } from 'luxon';
 
 function CalendarwCols() {
   const [week, setweek] = useState({ control: [], mon: [], tue: [], wed: [], thu: [], fri: [], sat: [], sun: [] });
-  const [columnHeight, setcolumnHeight] = useState(50);;
+  const [columnHeight, setcolumnHeight] = useState(30);;
   const [events, setevents] = useState({});
   const [cellRange, setcellRange] = useState(15)
   const cellDuration = Duration.fromObject({ minutes: cellRange })
@@ -16,11 +16,13 @@ function CalendarwCols() {
   const range = end.diff(start, ['hours']).hours
   const today = DateTime.local()
   const [activeWeek, setactiveWeek] = useState(today.startOf('week'))
+  const [displayMonthYear, setdisplayMonthYear] = useState(activeWeek.toFormat('LLLL yyyy'))
 
   const getTimeSlots = (start, dur, range) => {
     let slotRange = range * 4
     let timeSlot = start
-    let day = today.startOf('week').plus(startTime)
+
+    let day = activeWeek.plus(startTime)
     let monday = day
     let tuesday = day.plus({ days: 1 })
     let wednesday = day.plus({ days: 2 })
@@ -70,9 +72,21 @@ function CalendarwCols() {
     setweek(getTimeSlots(start, cellDuration, range))
   }, [])
 
+  useEffect(() => {
+    setweek(getTimeSlots(start, cellDuration, range))
+  }, [activeWeek])
+
+  const handleWeekChange = (action) => {
+    action === 'forward' ?
+      setactiveWeek(activeWeek.plus({ week: 1 })) :
+      setactiveWeek(activeWeek.minus({ week: 1 }))
+
+    setdisplayMonthYear(activeWeek.toFormat('LLLL yyyy'))
+    // setweek(getTimeSlots(start, cellDuration, range))
+  }
+
   const EventBox = (props) => {
     const { id } = props
-    console.log(events[id])
     const { height } = events[id]
     return (
       <Resizable
@@ -86,10 +100,6 @@ function CalendarwCols() {
         {id}
       </Resizable >
     )
-  }
-
-  const ResizeHandle = () => {
-    return <hr />
   }
 
   const getMaxHeight = (id) => {
@@ -117,9 +127,6 @@ function CalendarwCols() {
   const calculateEndTime = (height, id) => {
     const steps = height / columnHeight
     const startTime = events[id].startTime
-    console.log(cellRange * steps)
-    console.log(cellRange)
-    console.log(steps)
     const endTime = startTime.plus({ minutes: (cellRange * steps) })
     return endTime
   }
@@ -134,26 +141,47 @@ function CalendarwCols() {
       [id]: {
         ...events[id],
         height: appliedHeight,
-        endTime: newEndTime.toString()
+        endTime: newEndTime
       }
     })
   }
 
+  const getWeekDays = () => {
+    let arr = []
+    for (let i = 0; i < 7; i++) {
+      let dayOfWeek = activeWeek.plus({ days: i })
+
+      let dayDisplayFormat = {
+        letters: dayOfWeek.toFormat('EEE'),
+        number: dayOfWeek.toFormat('dd')
+      }
+      arr = [...arr, {
+        formatted: dayDisplayFormat,
+        date: dayOfWeek
+      }]
+    }
+    return arr
+  }
+
+  const weekDays = getWeekDays()
+
   const ColumnGrid = () => {
     let grid = []
-    console.log(week)
     for (let i = 0; i < week.control.length; i++) {
       for (let day in week) {
         let id = week[day][i]
         grid = [...grid,
         <div
-          className='calendar-column'
+          className={day === 'control' ? 'calendar-column__control' : 'calendar-column'}
           key={id}
           style={{ 'height': `${columnHeight}px` }}
           id={id}
-          onClick={!events[id] ? (e) => createEvent(e) : null}>
-          {id}
+          onClick={!events[id] && day !== 'control' ? (e) => createEvent(e) : null}
+        >
           {events[id] ? <EventBox id={id} /> : null}
+          {Object.keys(week) === 'control' ? 'h' : null}
+          {day === 'control' ? <p className='calendar-control'>{week.control[i]}</p> : null}
+          {/* {DateTime.fromMillis(parseInt(id)).toLocaleString(DateTime.DATE_FULL)} */}
         </div>
         ]
       }
@@ -167,7 +195,29 @@ function CalendarwCols() {
 
   return (
     <div>
-      <h1 className="title">Calendar with columns</h1>
+      <h1 className="title calendar-title">
+        <span onClick={() => handleWeekChange('back')}>{'<'}</span>
+        {displayMonthYear}
+        <span onClick={() => handleWeekChange('forward')}>{'>'}</span>
+      </h1>
+      <div className='calendar-header'>
+        <div className='calendar-header__element-first'></div>
+        {weekDays.map((day) => (
+          <div key={day.formatted.letters} className='calendar-header__element'>
+            <span className='calendar-letters'>
+              {day.formatted.letters}
+            </span>
+            <span className={
+              today.hasSame(day.date, 'day') ?
+                'calendar-today' :
+                'calendar-notToday'
+            }>
+              {day.formatted.number}
+            </span>
+          </div>
+        ))}
+
+      </div>
       {ColumnGrid()}
     </div>
   )
