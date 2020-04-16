@@ -1,9 +1,41 @@
 .calendar {
-  display: flex;
-  flex-wrap: wrap;
+  &-weekControl {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+    &__element {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 40%;
+    }
+    &__month {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 40%;
+      font-weight: 500;
+      font-size: 1.8rem;
+    }
+    // flex-direction: column;
+  }
+  &-grid {
+    user-select: none;
+    display: flex;
+    flex-wrap: wrap;
+    color: #3c4043;
+  }
   &-title {
     text-align: center;
     text-transform: capitalize;
+    width: 100%;
+    .fas {
+      padding: 1rem 2rem;
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
   }
   &-today {
     display: flex;
@@ -65,19 +97,24 @@
     overflow: visible;
     background-color: #1a73e8;
     width: 100%;
-    z-index: 70;
-    width: 100%;
     border-radius: 2px;
   }
   &-resizable {
     overflow: visible;
-    background-color: blue;
+    background-color: #1a73e8;
     color: white;
-    z-index: 70;
     border: 1px solid white;
     border-radius: 5px;
     padding: 0.25rem;
     font-size: 0.8rem;
+    &__close {
+      font-size: 0.5rem;
+      color: rgba($color: white, $alpha: 0.5);
+      position: absolute;
+      right: 5px;
+      top: 3px;
+      cursor: pointer;
+    }
   }
   &-letters {
     text-transform: uppercase;
