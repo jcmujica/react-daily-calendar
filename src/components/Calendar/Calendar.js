@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect } from 'react';
 import { DateTime, Duration } from 'luxon';
 import Modal from '../Modal/Modal';
 import Grid from '../Grid/Grid';
+
+export const CalendarContext = createContext();
 
 function Calendar() {
   const today = DateTime.local();
@@ -22,6 +24,8 @@ function Calendar() {
   const start = DateTime.local().startOf('day').plus(startTime);
   const end = DateTime.local().startOf('day').plus(endTime);
   const range = end.diff(start, ['hours']).hours;
+
+  /* CONTEXT */
 
   /* HOOKS */
 
@@ -96,8 +100,6 @@ function Calendar() {
     return displayReturn
   };
 
-
-
   const handleWeekChange = (action) => {
     action === 'forward' ?
       setactiveWeek(activeWeek.plus({ week: 1 })) :
@@ -138,59 +140,47 @@ function Calendar() {
     setactiveModal(true)
   }
 
-
   return (
     <div className='calendar'>
-      {activeModal ?
-        <Modal
-          id={activeEventId}
-          eventList={eventList}
-          seteventList={seteventList}
-          duration={cellDuration}
-          active={setactiveModal}
-          columnHeight={columnHeight}
-          modalMode={modalMode} /> :
-        null}
-      <div className="calendar-weekControl">
-        <span className="calendar-weekControl__left" onClick={() => handleWeekChange('back')}>
-          <i className="fas fa-arrow-circle-left"></i>
-        </span>
-        <h1 className="calendar-weekControl__month">
-          {displayMonthYear}
-        </h1>
-        <span className="calendar-weekControl__right" onClick={() => handleWeekChange('forward')}>
-          <i className="fas fa-arrow-circle-right"></i>
-        </span>
-      </div>
-
-
-
-      <div className='calendar-header'>
-        <div className='calendar-header__element-first'></div>
-        {weekDays.length > 0 ? weekDays.map((day) => (
-          <div key={day.formatted.letters} className='calendar-header__element'>
-            <span className='calendar-letters'>
-              {day.formatted.letters}
-            </span>
-            <span className={
-              today.hasSame(day.date, 'day') ?
-                'calendar-today' :
-                'calendar-notToday'
-            }>
-              {day.formatted.number}
-            </span>
-          </div>
-        )) : null}
-      </div>
-      <Grid
-        columnHeight={columnHeight}
-        eventList={eventList}
-        handleCreate={handleCreate}
-        handleEdit={handleEdit}
-        week={week}
-        cellRange={cellRange}
-        handleEdit={handleEdit}
-      />
+      <CalendarContext.Provider value={{ cellRange, columnHeight, eventList, seteventList, week, handleEdit, id: activeEventId }}>
+        {activeModal ?
+          <Modal
+            duration={cellDuration}
+            active={setactiveModal}
+            modalMode={modalMode} /> :
+          null}
+        <div className="calendar-weekControl">
+          <span className="calendar-weekControl__left" onClick={() => handleWeekChange('back')}>
+            <i className="fas fa-arrow-circle-left"></i>
+          </span>
+          <h1 className="calendar-weekControl__month">
+            {displayMonthYear}
+          </h1>
+          <span className="calendar-weekControl__right" onClick={() => handleWeekChange('forward')}>
+            <i className="fas fa-arrow-circle-right"></i>
+          </span>
+        </div>
+        <div className='calendar-header'><div className='calendar-header__element-first'></div>
+          {weekDays.length > 0 ? weekDays.map((day) => (
+            <div key={day.formatted.letters} className='calendar-header__element'>
+              <span className='calendar-letters'>
+                {day.formatted.letters}
+              </span>
+              <span className={
+                today.hasSame(day.date, 'day') ?
+                  'calendar-today' :
+                  'calendar-notToday'
+              }>
+                {day.formatted.number}
+              </span>
+            </div>
+          )) : null}
+        </div>
+        <Grid
+          cellRange={cellRange}
+          handleCreate={handleCreate}
+        />
+      </CalendarContext.Provider>
     </div>
   )
 }

@@ -1,15 +1,10 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import Event from '../Event/Event';
+import { CalendarContext } from '../Calendar/Calendar';
 
 function Grid(props) {
-  const {
-    week,
-    columnHeight,
-    eventList,
-    handleCreate,
-    handleEdit,
-    cellRange
-  } = props;
+  const { handleCreate } = props;
+  const { columnHeight, eventList, week } = useContext(CalendarContext)
 
   const getGrid = () => {
     let grid = []
@@ -27,12 +22,9 @@ function Grid(props) {
           {eventList[id] ?
             <Event
               id={id}
-              onClick={(id) => handleEdit(id)}
               eventList={eventList}
               columnHeight={columnHeight}
-              handleEdit={handleEdit}
               week={week}
-              cellRange={cellRange}
             /> :
             null}
           {day === 'control' ? <p className='calendar-control'>{week.control[i]}</p> : null}

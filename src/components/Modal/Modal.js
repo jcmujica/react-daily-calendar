@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import { DateTime } from 'luxon';
+import { CalendarContext } from '../Calendar/Calendar';
 
 function CreateModal(props) {
-  const { id, eventList, seteventList, duration, active, columnHeight, modalMode } = props;
+  const { duration, active, modalMode } = props;
+  const { columnHeight, eventList, seteventList, id } = useContext(CalendarContext);
   const [event, setevent] = useState({});
   const [modalInfo, setModalInfo] = useState({
     title: '',
@@ -10,6 +12,8 @@ function CreateModal(props) {
       { label: 'Title', name: 'title' }, { label: 'Assignee', name: 'assignee' }, { label: 'Assigned', name: 'assigned' }
     ]
   });
+
+
 
   useEffect(() => {
     if (modalMode === 'create') {
@@ -39,7 +43,7 @@ function CreateModal(props) {
         title: 'Are you sure you want to delete this entry?',
       });
     };
-  }, [columnHeight, duration, eventList, id, modalInfo, modalMode]);
+  }, []);
 
   const handleChange = (e) => {
     let { name, value } = e.target;

@@ -3,10 +3,10 @@ import './App.scss';
 import '../node_modules/@fortawesome/fontawesome-free/css/all.css'
 import Calendar from './components/Calendar/Calendar';
 
-if (process.env.NODE_ENV !== 'production') {
-  const { whyDidYouUpdate } = require('why-did-you-update')
-  whyDidYouUpdate(React)
-}
+// if (process.env.NODE_ENV !== 'production') {
+//   const { whyDidYouUpdate } = require('why-did-you-update')
+//   whyDidYouUpdate(React)
+// }
 
 function App() {
   return (

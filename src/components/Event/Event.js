@@ -1,16 +1,18 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { DateTime } from 'luxon';
 import { Resizable } from 're-resizable';
+import { CalendarContext } from '../Calendar/Calendar';
 
 function Event(props) {
-  const { id, eventList, seteventList, week, columnHeight, cellRange, handleEdit } = props;
+  const { id } = props;
+  const { cellRange, columnHeight, eventList, seteventList, week, handleEdit } = useContext(CalendarContext);
   const { height } = eventList[id];
 
   const handleResizeStop = (e, dir, ref, delta, id) => {
-    const maxHeight = getMaxHeight(id)
-    const resizedHeight = eventList[id].height + delta.height
-    const appliedHeight = resizedHeight <= maxHeight ? resizedHeight : maxHeight
-    const newEndTime = calculateEndTime(appliedHeight, id)
+    const maxHeight = getMaxHeight(id);
+    const resizedHeight = eventList[id].height + delta.height;
+    const appliedHeight = resizedHeight <= maxHeight ? resizedHeight : maxHeight;
+    const newEndTime = calculateEndTime(appliedHeight, id);
     seteventList({
       ...eventList,
       [id]: {
