@@ -30,23 +30,27 @@ function Calendar() {
   /* HOOKS */
 
   useEffect(() => {
-    setweek(getTimeSlots(start, cellDuration, range));
+    let weekCalculation = getTimeSlots();
+    setweek(weekCalculation);
     setdisplayMonthYear(getWeekDisplay(activeWeek));
     setweekDays(getWeekDays(activeWeek))
   }, [activeWeek]);
 
   useEffect(() => {
-    setweek(getTimeSlots(start, cellDuration, range));
+    let weekCalculation = getTimeSlots();
+    setweek(weekCalculation);
   }, [eventList]);
 
   useEffect(() => {
-    setweek(getTimeSlots(start, cellDuration, range));
+    let weekCalculation = getTimeSlots();
+    setweek(weekCalculation);
   }, []);
 
   /* WEEK */
 
-  const getTimeSlots = (start, dur, range) => {
+  const getTimeSlots = () => {
     console.log('get time slots')
+    let dur = cellDuration;
     let slotRange = range * 4
     let timeSlot = start
     let day = activeWeek.plus(startTime)

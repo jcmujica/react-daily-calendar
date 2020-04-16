@@ -13,8 +13,6 @@ function CreateModal(props) {
     ]
   });
 
-
-
   useEffect(() => {
     if (modalMode === 'create') {
       setModalInfo({
