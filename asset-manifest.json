@@ -1,0 +1,26 @@
+{
+  "files": {
+    "main.css": "/react-daily-calendar/static/css/main.3858e736.chunk.css",
+    "main.js": "/react-daily-calendar/static/js/main.c596e32d.chunk.js",
+    "main.js.map": "/react-daily-calendar/static/js/main.c596e32d.chunk.js.map",
+    "runtime-main.js": "/react-daily-calendar/static/js/runtime-main.df670495.js",
+    "runtime-main.js.map": "/react-daily-calendar/static/js/runtime-main.df670495.js.map",
+    "static/css/2.d7f20b32.chunk.css": "/react-daily-calendar/static/css/2.d7f20b32.chunk.css",
+    "static/js/2.23fa4bba.chunk.js": "/react-daily-calendar/static/js/2.23fa4bba.chunk.js",
+    "static/js/2.23fa4bba.chunk.js.map": "/react-daily-calendar/static/js/2.23fa4bba.chunk.js.map",
+    "index.html": "/react-daily-calendar/index.html",
+    "precache-manifest.d7ddbf7ca92d9b6788693d1f4ecc8353.js": "/react-daily-calendar/precache-manifest.d7ddbf7ca92d9b6788693d1f4ecc8353.js",
+    "service-worker.js": "/react-daily-calendar/service-worker.js",
+    "static/css/2.d7f20b32.chunk.css.map": "/react-daily-calendar/static/css/2.d7f20b32.chunk.css.map",
+    "static/css/main.3858e736.chunk.css.map": "/react-daily-calendar/static/css/main.3858e736.chunk.css.map",
+    "static/js/2.23fa4bba.chunk.js.LICENSE.txt": "/react-daily-calendar/static/js/2.23fa4bba.chunk.js.LICENSE.txt",
+    "static/media/all.css": "/react-daily-calendar/static/media/fa-solid-900.ec763292.svg"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.df670495.js",
+    "static/css/2.d7f20b32.chunk.css",
+    "static/js/2.23fa4bba.chunk.js",
+    "static/css/main.3858e736.chunk.css",
+    "static/js/main.c596e32d.chunk.js"
+  ]
+}
