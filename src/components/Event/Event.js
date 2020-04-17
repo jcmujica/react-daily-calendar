@@ -57,7 +57,7 @@ function Event(props) {
     <div>
       <Resizable
         className='calendar-resizable'
-        enable={{ bottom: true }}
+        enable={{ top: true, bottom: true }}
         grid={[0, (columnHeight)]}
         key={id}
         minHeight={columnHeight}

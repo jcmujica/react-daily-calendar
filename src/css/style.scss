@@ -1,4 +1,13 @@
 .calendar {
+  &-sidebar {
+    padding-top: 300px;
+    .checkbox {
+      padding: 10px;
+      .chk-input {
+        margin-right: 10px;
+      }
+    }
+  }
   &-weekControl {
     width: 100%;
     display: flex;
@@ -24,8 +33,25 @@
   &-grid {
     user-select: none;
     display: flex;
+    // flex-direction: column;
     flex-wrap: wrap;
     color: #3c4043;
+    font-size: 0.8rem;
+  }
+  &-day {
+    display: flex;
+    flex-direction: column;
+    width: 12.5%;
+  }
+  &-time {
+    border: 1px solid #dbdbdb;
+    border-width: 1px 1px 0 0;
+
+    &__control {
+      border: 1px solid #dbdbdb;
+      border-width: 1px 1px 0 0;
+      width: 9%;
+    }
   }
   &-title {
     text-align: center;
@@ -59,17 +85,6 @@
     margin: 0 auto;
     height: 40px;
     width: 40px;
-  }
-  &-column {
-    border: 1px solid #dbdbdb;
-    border-width: 1px 1px 0 0;
-    width: 13%;
-    font-size: 0.8rem;
-    &__control {
-      border: 1px solid #dbdbdb;
-      border-width: 1px 1px 0 0;
-      width: 9%;
-    }
   }
   &-header {
     display: flex;

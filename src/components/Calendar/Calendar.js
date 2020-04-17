@@ -1,7 +1,8 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect, useContext } from 'react';
 import { DateTime, Duration } from 'luxon';
 import Modal from '../Modal/Modal';
 import Grid from '../Grid/Grid';
+import { UserContext } from '../../contexts/UserContext';
 
 export const CalendarContext = createContext();
 
@@ -27,6 +28,8 @@ function Calendar() {
 
   /* CONTEXT */
 
+  const { users } = useContext(UserContext);
+  // console.log(users);
   /* HOOKS */
 
   useEffect(() => {
