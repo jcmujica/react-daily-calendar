@@ -15,7 +15,9 @@
     "re-resizable": "^6.3.2",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
-    "react-scripts": "3.4.1"
+    "react-rnd": "^10.1.8",
+    "react-scripts": "3.4.1",
+    "uuid": "^7.0.3"
   },
   "scripts": {
     "predeploy": "npm run build",

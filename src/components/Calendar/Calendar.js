@@ -21,7 +21,7 @@ function Calendar() {
 
   const cellDuration = Duration.fromObject({ minutes: cellRange });
   const startTime = Duration.fromObject({ hours: 8 });
-  const endTime = Duration.fromObject({ hours: 20 });
+  const endTime = Duration.fromObject({ hours: 12 });
   const start = DateTime.local().startOf('day').plus(startTime);
   const end = DateTime.local().startOf('day').plus(endTime);
   const range = end.diff(start, ['hours']).hours;
@@ -52,7 +52,7 @@ function Calendar() {
   /* WEEK */
 
   const getTimeSlots = () => {
-    console.log('get time slots')
+    // console.log('get time slots')
     let dur = cellDuration;
     let slotRange = range * 4
     let timeSlot = start

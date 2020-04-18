@@ -15,10 +15,10 @@ function App() {
     <div className="App">
       <UserContextProvider>
         <div className="columns">
-          <div className="column is-2">
+          {/* <div className="column is-2">
             <Sidebar />
-          </div>
-          <div className="column is-10">
+          </div> */}
+          <div className="column is-12">
             <Calendar />
           </div>
         </div>

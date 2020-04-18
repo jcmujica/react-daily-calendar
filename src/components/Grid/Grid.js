@@ -1,87 +1,72 @@
-import React, { useEffect, useContext } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import Event from '../Event/Event';
+import { DateTime } from 'luxon';
 import { CalendarContext } from '../Calendar/Calendar';
+import Column from '../Column/Column';
+import { v4 as uuid } from 'uuid';
 
 function Grid(props) {
   const { handleCreate } = props;
   const { columnHeight, eventList, week } = useContext(CalendarContext)
   let dayBlock = []
 
-  console.log(week)
+  // console.log(week)
 
   for (let day in week) {
     dayBlock = [...dayBlock, week[day]]
   }
+
+  const handleClick = (e) => {
+    console.log(e.target)
+  }
+
   useEffect(() => {
   }, [])
 
-  // const getGrid = () => {
-  //   let grid = [];
-  //   let dayGrid = [];
-  //   // for (let i = 0; i < week.control.length; i++) {
-  //   let dayBlock = []
-  //   for (let day in week) {
-  //     dayBlock = [...dayBlock, week[day]]
-  //   }
-  //   console.log('arr', arr)
-  //   {}
-  //   // console.log(week[day])
-  //   // {
-  //   //   week[day].map((time) => (
-  //   //     <div>
-  //   //       {week[day][time]}
-  //   //     </div>
-  //   //   ))
-  //   // }
-  //   // for (let time in week[day]) {
-  //   // let id = week[day][time]
-  //   // console.log(id)
-  //   // }
-  //   // grid = [...grid,
-  //   // <div
-  //   //   className={day === 'control' ? 'calendar-column__control' : 'calendar-column'}
-  //   //   key={id}
-  //   //   style={{ 'height': `${columnHeight}px` }}
-  //   //   id={id}
-  //   //   onClick={!eventList[id] && day !== 'control' ? () => handleCreate(id) : null}
-  //   // >
-  //   //   {eventList[id] ?
-  //   //     <Event
-  //   //       id={id}
-  //   //       eventList={eventList}
-  //   //       columnHeight={columnHeight}
-  //   //       week={week}
-  //   //     /> :
-  //   //     null}
-  //   //   {day === 'control' ? <p className='calendar-control'>{week.control}</p> : null}
-  //   // </div>
-  //   // ]
-  //   // }
-  //   // }
-  //   dayGrid = [...dayGrid, <div className="calendar-day">{grid}</div>]
-  //   // }
-  //   return (
-  //     <div className='calendar-grid'>
-  //       {dayBlock.map(()=> (
-  //         <div>
+  const [events, setevents] = useState([
+    {
+      id: '1',
+      startTime: '1586781000000',
+      endTime: '',
+      owner: '',
+      participant: [{}, {}, {}],
+      resources: [],
+      name: 'Event1',
+      desc: '',
+      height: columnHeight,
+      yOffset: 0,
+      xOffset: 0
+    },
+    {
 
-  //       ))}
-  //     </div>
-  //   )
-  // }
-
+    }
+  ])
+  // const events = 
+  // console.log(dayBlock)
+  const getDay = (a, b) => {
+    // console.log('this is b', b)
+    if (a && b) {
+      return (
+        DateTime.fromMillis(parseInt(a)).startOf("day").ts === DateTime.fromMillis(parseInt(b)).startOf("day").ts)
+    }
+  }
 
   return (
     <div className='calendar-grid'>
-      {dayBlock.map((day) => (
-        <div className='calendar-day'>
-          {day.map((time) => (
-            <div className='calendar-time'>
-              {time.includes(':') ? time : null}
-            </div>
-          ))}
-        </div>
-      ))}
+      {dayBlock.map((day) => {
+        // console.log(day[0])
+        return (
+          <Column
+            day={day}
+            key={uuid()}
+            onClick={(e) => handleClick(e)}
+            events={
+              events.filter((event) => getDay(event.startTime, day[0]))
+            }
+            setevents={setevents}
+          />
+        )
+      })}
     </div>
   )
 }
