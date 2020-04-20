@@ -31,25 +31,30 @@ function Grid(props) {
       owner: '',
       participant: [{}, {}, {}],
       resources: [],
+      color: 'blue',
       name: 'Event1',
+      desc: '',
+      height: columnHeight,
+      yOffset: 30,
+      xOffset: 0
+    },
+    {
+      id: '2',
+      startTime: '1586867400000',
+      endTime: '',
+      owner: '',
+      participant: [{}, {}, {}],
+      resources: [],
+      color: 'blue',
+      name: 'Event2',
       desc: '',
       height: columnHeight,
       yOffset: 0,
       xOffset: 0
     },
-    {
-
-    }
   ])
   // const events = 
   // console.log(dayBlock)
-  const getDay = (a, b) => {
-    // console.log('this is b', b)
-    if (a && b) {
-      return (
-        DateTime.fromMillis(parseInt(a)).startOf("day").ts === DateTime.fromMillis(parseInt(b)).startOf("day").ts)
-    }
-  }
 
   return (
     <div className='calendar-grid'>
@@ -60,9 +65,7 @@ function Grid(props) {
             day={day}
             key={uuid()}
             onClick={(e) => handleClick(e)}
-            events={
-              events.filter((event) => getDay(event.startTime, day[0]))
-            }
+            events={events}
             setevents={setevents}
           />
         )
