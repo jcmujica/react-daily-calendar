@@ -1,4 +1,13 @@
 .calendar {
+  &-sidebar {
+    padding-top: 300px;
+    .checkbox {
+      padding: 10px;
+      .chk-input {
+        margin-right: 10px;
+      }
+    }
+  }
   &-weekControl {
     width: 100%;
     display: flex;
@@ -24,8 +33,26 @@
   &-grid {
     user-select: none;
     display: flex;
+    // flex-direction: column;
     flex-wrap: wrap;
     color: #3c4043;
+    font-size: 0.8rem;
+  }
+  &-day {
+    display: flex;
+    flex-direction: column;
+    width: 12.5%;
+    position: relative;
+  }
+  &-time {
+    border: 1px solid #dbdbdb;
+    border-width: 1px 1px 0 0;
+    padding-right: 5px;
+    &__control {
+      border: 1px solid #dbdbdb;
+      border-width: 1px 1px 0 0;
+      width: 9%;
+    }
   }
   &-title {
     text-align: center;
@@ -49,6 +76,23 @@
     font-weight: 700;
     font-size: 1.3rem;
   }
+  &-resizable {
+    overflow: hidden;
+    background-color: #1a73e8;
+    color: white;
+    border: 1px solid white;
+    border-radius: 5px;
+    padding: 0.25rem;
+    font-size: 0.8rem;
+    &__close {
+      font-size: 0.5rem;
+      color: rgba($color: white, $alpha: 0.5);
+      position: absolute;
+      right: 5px;
+      top: 3px;
+      cursor: pointer;
+    }
+  }
   &-notToday {
     font-size: 1.2rem;
     color: #3c4043;
@@ -59,17 +103,6 @@
     margin: 0 auto;
     height: 40px;
     width: 40px;
-  }
-  &-column {
-    border: 1px solid #dbdbdb;
-    border-width: 1px 1px 0 0;
-    width: 13%;
-    font-size: 0.8rem;
-    &__control {
-      border: 1px solid #dbdbdb;
-      border-width: 1px 1px 0 0;
-      width: 9%;
-    }
   }
   &-header {
     display: flex;
@@ -98,23 +131,6 @@
     background-color: #1a73e8;
     width: 100%;
     border-radius: 2px;
-  }
-  &-resizable {
-    overflow: visible;
-    background-color: #1a73e8;
-    color: white;
-    border: 1px solid white;
-    border-radius: 5px;
-    padding: 0.25rem;
-    font-size: 0.8rem;
-    &__close {
-      font-size: 0.5rem;
-      color: rgba($color: white, $alpha: 0.5);
-      position: absolute;
-      right: 5px;
-      top: 3px;
-      cursor: pointer;
-    }
   }
   &-letters {
     text-transform: uppercase;
