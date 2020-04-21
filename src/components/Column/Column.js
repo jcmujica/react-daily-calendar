@@ -45,7 +45,6 @@ function Column(props) {
       updEvents[index].endTime = newEndTime;
     };
     updEvents[index].seq = getSequence(newStartTime, newEndTime, day);
-    console.log('newEndTime', newEndTime);
     console.log(updEvents[index].seq);
     setevents([
       ...updEvents,
@@ -65,7 +64,7 @@ function Column(props) {
     let updEvents = [...events];
     let index = updEvents.findIndex(obj => obj.id === id);
     let newStartTime = day[offset / columnHeight];
-    let arrayRange = day.indexOf(updEvents[index].endTime) - day.indexOf(newStartTime);
+    let arrayRange = day.indexOf(updEvents[index].endTime) - day.indexOf(updEvents[index].startTime);
     let newEndTime = day[arrayRange + (offset / columnHeight)];
     updEvents[index].yOffset = offset;
     updEvents[index].startTime = newStartTime;
@@ -79,7 +78,7 @@ function Column(props) {
 
   const getSequence = (start, end, array) => {
     let arrayCopy = [...array];
-    return arrayCopy.splice(arrayCopy.indexOf(start), arrayCopy.indexOf(end));
+    return arrayCopy.splice(arrayCopy.indexOf(start), (arrayCopy.indexOf(end) - arrayCopy.indexOf(start) + 1));
   };
 
   const getDay = (a, b) => {
