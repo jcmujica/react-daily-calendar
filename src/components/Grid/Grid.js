@@ -24,34 +24,34 @@ function Grid(props) {
   }, [])
 
   const [events, setevents] = useState([
-    {
-      id: '1',
-      startTime: '1586781000000',
-      endTime: '',
-      owner: '',
-      participant: [{}, {}, {}],
-      resources: [],
-      color: 'blue',
-      name: 'Event1',
-      desc: '',
-      height: columnHeight,
-      yOffset: 30,
-      xOffset: 0
-    },
-    {
-      id: '2',
-      startTime: '1586867400000',
-      endTime: '',
-      owner: '',
-      participant: [{}, {}, {}],
-      resources: [],
-      color: 'blue',
-      name: 'Event2',
-      desc: '',
-      height: columnHeight,
-      yOffset: 0,
-      xOffset: 0
-    },
+    // {
+    //   id: '1',
+    //   startTime: '1586781000000',
+    //   endTime: '',
+    //   owner: '',
+    //   participant: [{}, {}, {}],
+    //   resources: [],
+    //   color: 'blue',
+    //   name: 'Event1',
+    //   desc: '',
+    //   height: columnHeight,
+    //   yOffset: 30,
+    //   xOffset: 0
+    // },
+    // {
+    //   id: '2',
+    //   startTime: '1586867400000',
+    //   endTime: '',
+    //   owner: '',
+    //   participant: [{}, {}, {}],
+    //   resources: [],
+    //   color: 'blue',
+    //   name: 'Event2',
+    //   desc: '',
+    //   height: columnHeight,
+    //   yOffset: 0,
+    //   xOffset: 0
+    // },
   ])
   // const events = 
   // console.log(dayBlock)
@@ -59,7 +59,6 @@ function Grid(props) {
   return (
     <div className='calendar-grid'>
       {dayBlock.map((day) => {
-        // console.log(day[0])
         return (
           <Column
             day={day}

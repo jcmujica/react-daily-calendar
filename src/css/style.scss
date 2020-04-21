@@ -47,7 +47,7 @@
   &-time {
     border: 1px solid #dbdbdb;
     border-width: 1px 1px 0 0;
-
+    padding-right: 5px;
     &__control {
       border: 1px solid #dbdbdb;
       border-width: 1px 1px 0 0;
@@ -75,6 +75,23 @@
     color: white;
     font-weight: 700;
     font-size: 1.3rem;
+  }
+  &-resizable {
+    overflow: hidden;
+    background-color: #1a73e8;
+    color: white;
+    border: 1px solid white;
+    border-radius: 5px;
+    padding: 0.25rem;
+    font-size: 0.8rem;
+    &__close {
+      font-size: 0.5rem;
+      color: rgba($color: white, $alpha: 0.5);
+      position: absolute;
+      right: 5px;
+      top: 3px;
+      cursor: pointer;
+    }
   }
   &-notToday {
     font-size: 1.2rem;
@@ -114,23 +131,6 @@
     background-color: #1a73e8;
     width: 100%;
     border-radius: 2px;
-  }
-  &-resizable {
-    overflow: visible;
-    background-color: #1a73e8;
-    color: white;
-    border: 1px solid white;
-    border-radius: 5px;
-    padding: 0.25rem;
-    font-size: 0.8rem;
-    &__close {
-      font-size: 0.5rem;
-      color: rgba($color: white, $alpha: 0.5);
-      position: absolute;
-      right: 5px;
-      top: 3px;
-      cursor: pointer;
-    }
   }
   &-letters {
     text-transform: uppercase;

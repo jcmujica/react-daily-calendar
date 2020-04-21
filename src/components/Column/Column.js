@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { CalendarContext } from '../Calendar/Calendar';
 import { Rnd } from 'react-rnd';
 import { DateTime } from 'luxon';
@@ -8,10 +8,11 @@ function Column(props) {
   const { day, events, setevents } = props;
 
   const createEvent = (e) => {
+    let startTime = e.target.id;
     let endTime = day[day.indexOf(e.target.id) + 1];
     let newEvent = {
-      id: e.target.id,
-      startTime: e.target.id,
+      id: startTime,
+      startTime,
       endTime,
       owner: '',
       participant: [{}, {}, {}],
@@ -20,27 +21,32 @@ function Column(props) {
       name: 'Event ',
       desc: '',
       height: columnHeight,
+      seq: [startTime, endTime],
       yOffset: day.indexOf(e.target.id) * columnHeight,
       xOffset: 0
     };
     let updEvents = [...events, newEvent]
-    setevents(updEvents)
+    setevents(updEvents);
     console.log(newEvent.endTime);
   };
 
-
   const handleResizeStop = (e, dir, ref, delta, id, height) => {
-    var updEvents = [...events];
-    var index = updEvents.findIndex(obj => obj.id === id);
+    let updEvents = [...events];
+    let index = updEvents.findIndex(obj => obj.id === id);
+    let newStartTime = updEvents[index].startTime;
+    let newEndTime = updEvents[index].endTime;
     updEvents[index].height = height + delta.height;
     if (dir === 'top') {
+      newStartTime = day[day.indexOf(updEvents[index].startTime) - (delta.height / columnHeight)];
       updEvents[index].yOffset = updEvents[index].yOffset - delta.height;
-      // need to update starttime on top drag
-      updEvents[index].startTime = day[updEvents[index].yOffset - delta.height / columnHeight]
+      updEvents[index].startTime = newStartTime;
     } else if (dir === 'bottom') {
-      updEvents[index].endTime = day[day.indexOf(updEvents[index].endTime) + delta.height / columnHeight];
-    }
-    console.log(updEvents[index].endTime);
+      newEndTime = day[day.indexOf(updEvents[index].endTime) + delta.height / columnHeight];
+      updEvents[index].endTime = newEndTime;
+    };
+    updEvents[index].seq = getSequence(newStartTime, newEndTime, day);
+    console.log('newEndTime', newEndTime);
+    console.log(updEvents[index].seq);
     setevents([
       ...updEvents,
     ]);
@@ -60,39 +66,28 @@ function Column(props) {
     let index = updEvents.findIndex(obj => obj.id === id);
     let newStartTime = day[offset / columnHeight];
     let arrayRange = day.indexOf(updEvents[index].endTime) - day.indexOf(newStartTime);
-
     let newEndTime = day[arrayRange + (offset / columnHeight)];
-    console.log(newEndTime)
     updEvents[index].yOffset = offset;
     updEvents[index].startTime = newStartTime;
     updEvents[index].endTime = newEndTime;
+    updEvents[index].seq = getSequence(newStartTime, newEndTime, day);
+    console.log(updEvents[index].seq);
     setevents([
       ...updEvents,
     ]);
   };
 
+  const getSequence = (start, end, array) => {
+    let arrayCopy = [...array];
+    return arrayCopy.splice(arrayCopy.indexOf(start), arrayCopy.indexOf(end));
+  };
+
   const getDay = (a, b) => {
     if (a && b) {
       return (
-        DateTime.fromMillis(parseInt(a)).startOf("day").ts === DateTime.fromMillis(parseInt(b)).startOf("day").ts)
-    }
-  }
-
-  // const getCollisions = () => {
-  //   let eventsCopy = [...events]
-  //   for (let event of eventsCopy) {
-  //     //get first element
-
-  //     //get range of first element
-
-  //     //check if there are more elements in that range
-
-  //     //
-  //     console.log(event.id)
-  //     // get all
-  //   }
-  // }
-  // getCollisions()
+        DateTime.fromMillis(parseInt(a)).startOf("day").ts === DateTime.fromMillis(parseInt(b)).startOf("day").ts);
+    };
+  };
 
   return (
     <div className='calendar-day'>
@@ -121,7 +116,7 @@ function Column(props) {
           resizeGrid={[0, columnHeight]}
           minHeight={columnHeight}
           size={{ width: '100%', height: event.height }}
-          style={{ backgroundColor: event.color }}
+          style={{ backgroundColor: '#1a73e8' }}
           onResizeStop={(e, dir, ref, delta) => handleResizeStop(e, dir, ref, delta, event.id, event.height)}
           onDragStop={(e, data) => handleDragStop(e, data, event.id, event.yOffset, events)}
         // onClick={alert('hola')}
