@@ -9,9 +9,9 @@ export const CalendarContext = createContext();
 function Calendar() {
   const today = DateTime.local();
   const [week, setweek] = useState({ control: [], mon: [], tue: [], wed: [], thu: [], fri: [], sat: [], sun: [] });;
-  const [columnHeight, setcolumnHeight] = useState(30);
+  const [columnHeight, setcolumnHeight] = useState(30); //cellHeight
   const [eventList, seteventList] = useState({});
-  const [cellRange, setcellRange] = useState(15);
+  const [cellRange, setcellRange] = useState(10); //minutes
   const [activeWeek, setactiveWeek] = useState(today.startOf('week'));
   const [displayMonthYear, setdisplayMonthYear] = useState(today.startOf('week').toFormat('LLLL yyyy'));
   const [activeModal, setactiveModal] = useState(false);

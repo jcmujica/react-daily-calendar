@@ -2,16 +2,17 @@ import React, { useState, useContext, useEffect } from 'react';
 import { CalendarContext } from '../Calendar/Calendar';
 import { Rnd } from 'react-rnd';
 import { DateTime } from 'luxon';
+import { v4 as uuid } from 'uuid';
 
 function Column(props) {
-  const { columnHeight, eventList, week } = useContext(CalendarContext);
+  const { columnHeight } = useContext(CalendarContext);
   const { day, events, setevents } = props;
 
   const createEvent = (e) => {
     let startTime = e.target.id;
-    let endTime = day[day.indexOf(e.target.id) + 1];
+    let endTime = day[day.indexOf(e.target.id) + 2];
     let newEvent = {
-      id: startTime,
+      id: uuid(),
       startTime,
       endTime,
       owner: '',
@@ -21,14 +22,16 @@ function Column(props) {
       name: 'Event ',
       desc: '',
       height: columnHeight,
+      width: 90,
       seq: [startTime, endTime],
       yOffset: day.indexOf(e.target.id) * columnHeight,
       xOffset: 0
     };
     let updEvents = [...events, newEvent]
     setevents(updEvents);
-    console.log(newEvent.endTime);
+    // console.log(newEvent.seq);
   };
+  const [zIndex, setzIndex] = useState(0)
 
   const handleResizeStop = (e, dir, ref, delta, id, height) => {
     let updEvents = [...events];
@@ -37,15 +40,15 @@ function Column(props) {
     let newEndTime = updEvents[index].endTime;
     updEvents[index].height = height + delta.height;
     if (dir === 'top') {
-      newStartTime = day[day.indexOf(updEvents[index].startTime) - (delta.height / columnHeight)];
       updEvents[index].yOffset = updEvents[index].yOffset - delta.height;
+      newStartTime = day[day.indexOf(updEvents[index].startTime) - (delta.height / columnHeight)];
       updEvents[index].startTime = newStartTime;
     } else if (dir === 'bottom') {
-      newEndTime = day[day.indexOf(updEvents[index].endTime) + delta.height / columnHeight];
+      newEndTime = day[day.indexOf(updEvents[index].endTime) + (delta.height / columnHeight)];
       updEvents[index].endTime = newEndTime;
     };
     updEvents[index].seq = getSequence(newStartTime, newEndTime, day);
-    console.log(updEvents[index].seq);
+    // console.log(updEvents[index].seq);
     setevents([
       ...updEvents,
     ]);
@@ -63,14 +66,14 @@ function Column(props) {
     }
     let updEvents = [...events];
     let index = updEvents.findIndex(obj => obj.id === id);
-    let newStartTime = day[offset / columnHeight];
     let arrayRange = day.indexOf(updEvents[index].endTime) - day.indexOf(updEvents[index].startTime);
+    let newStartTime = day[offset / columnHeight];
     let newEndTime = day[arrayRange + (offset / columnHeight)];
     updEvents[index].yOffset = offset;
     updEvents[index].startTime = newStartTime;
     updEvents[index].endTime = newEndTime;
     updEvents[index].seq = getSequence(newStartTime, newEndTime, day);
-    console.log(updEvents[index].seq);
+    // console.log(updEvents[index].seq);
     setevents([
       ...updEvents,
     ]);
@@ -78,7 +81,7 @@ function Column(props) {
 
   const getSequence = (start, end, array) => {
     let arrayCopy = [...array];
-    return arrayCopy.splice(arrayCopy.indexOf(start), (arrayCopy.indexOf(end) - arrayCopy.indexOf(start) + 1));
+    return arrayCopy.splice(arrayCopy.indexOf(start), (arrayCopy.indexOf(end) - arrayCopy.indexOf(start)));
   };
 
   const getDay = (a, b) => {
@@ -87,6 +90,57 @@ function Column(props) {
         DateTime.fromMillis(parseInt(a)).startOf("day").ts === DateTime.fromMillis(parseInt(b)).startOf("day").ts);
     };
   };
+
+  const calculateWidth = () => {
+
+  }
+
+  const getCollisions = (slot) => {
+    for (let slot of day) {
+      let eventsInThisSlot = events.filter((event) => (
+        event.startTime === slot
+      ))
+      if (eventsInThisSlot.length > 0) {
+        // console.log(eventsInThisSlot)
+        let sorted = sortArrays(eventsInThisSlot);
+        console.log(sorted)
+        let width = 100;
+        let updEvents = [...events];
+        let index = -1;
+        let localZIndex = 0; 
+        for (let event of sorted) {
+          console.log('width1', width)
+          // console.log(event.id)
+          index = updEvents.findIndex(obj => obj.id === event.id);
+          updEvents[index].width = width * ((sorted.indexOf(event) + 1) / sorted.length);
+          updEvents[index].zIndex = localZIndex;
+          localZIndex++
+          console.log(localZIndex)
+          setevents([
+            ...updEvents
+          ]);
+          // console.log('sorted length',sorted.length) 
+          // console.log('width before',width) 
+          // // width = width * ((sorted.indexOf(event) + 1) / sorted.length)
+          // console.log('width after',width) 
+        }
+        setzIndex(localZIndex)
+        console.log('sorted', sorted)
+      }
+
+    }
+  }
+
+  const sortArrays = (filteredEvents) => {
+    return filteredEvents.sort((a, b) => (
+      a.seq.length - b.seq.length
+    ))
+  }
+  // getCollisions();
+
+  useEffect(() => {
+
+  }, [])
 
   return (
     <div className='calendar-day'>
@@ -102,6 +156,7 @@ function Column(props) {
           {time}
         </div>
       ))}
+      <button onClick={getCollisions} >Test</button>
       {events.filter((event) => getDay(event.startTime, day[0])).map((event) => (
         <Rnd
           className='calendar-resizable'
@@ -114,8 +169,8 @@ function Column(props) {
           enableResizing={{ top: true, bottom: true }}
           resizeGrid={[0, columnHeight]}
           minHeight={columnHeight}
-          size={{ width: '100%', height: event.height }}
-          style={{ backgroundColor: '#1a73e8' }}
+          size={{ width: `${event.width}%`, height: event.height }}
+          style={{ backgroundColor: '#1a73e8', zIndex: event.zIndex }}
           onResizeStop={(e, dir, ref, delta) => handleResizeStop(e, dir, ref, delta, event.id, event.height)}
           onDragStop={(e, data) => handleDragStop(e, data, event.id, event.yOffset, events)}
         // onClick={alert('hola')}
