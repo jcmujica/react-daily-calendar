@@ -10,7 +10,7 @@ function Column(props) {
 
   const createEvent = (e) => {
     let startTime = e.target.id;
-    let endTime = day[day.indexOf(e.target.id) + 2];
+    let endTime = day[day.indexOf(e.target.id) + 1]; //+2 ??
     let newEvent = {
       id: uuid(),
       startTime,
@@ -29,7 +29,7 @@ function Column(props) {
     };
     let updEvents = [...events, newEvent]
     setevents(updEvents);
-    // console.log(newEvent.seq);
+    console.log(newEvent.seq);
   };
   const [zIndex, setzIndex] = useState(0)
 
@@ -44,11 +44,13 @@ function Column(props) {
       newStartTime = day[day.indexOf(updEvents[index].startTime) - (delta.height / columnHeight)];
       updEvents[index].startTime = newStartTime;
     } else if (dir === 'bottom') {
-      newEndTime = day[day.indexOf(updEvents[index].endTime) + (delta.height / columnHeight)];
+      newEndTime = day[day.indexOf(updEvents[index].endTime) + (delta.height / columnHeight) + 1];
+      // console.log(day.indexOf(updEvents[index].endTime))
+      // console.log(delta.height / columnHeight)
       updEvents[index].endTime = newEndTime;
     };
     updEvents[index].seq = getSequence(newStartTime, newEndTime, day);
-    // console.log(updEvents[index].seq);
+    console.log(updEvents[index].seq);
     setevents([
       ...updEvents,
     ]);
@@ -69,11 +71,13 @@ function Column(props) {
     let arrayRange = day.indexOf(updEvents[index].endTime) - day.indexOf(updEvents[index].startTime);
     let newStartTime = day[offset / columnHeight];
     let newEndTime = day[arrayRange + (offset / columnHeight)];
+    console.log(newStartTime)
+    console.log(newEndTime)
     updEvents[index].yOffset = offset;
     updEvents[index].startTime = newStartTime;
     updEvents[index].endTime = newEndTime;
     updEvents[index].seq = getSequence(newStartTime, newEndTime, day);
-    // console.log(updEvents[index].seq);
+    console.log(updEvents[index].seq);
     setevents([
       ...updEvents,
     ]);
@@ -81,6 +85,8 @@ function Column(props) {
 
   const getSequence = (start, end, array) => {
     let arrayCopy = [...array];
+    console.log(arrayCopy.indexOf(start))
+    console.log(arrayCopy.indexOf(end))
     return arrayCopy.splice(arrayCopy.indexOf(start), (arrayCopy.indexOf(end) - arrayCopy.indexOf(start)));
   };
 
@@ -99,48 +105,77 @@ function Column(props) {
     for (let slot of day) {
       let eventsInThisSlot = events.filter((event) => (
         event.startTime === slot
-      ))
+      ));
       if (eventsInThisSlot.length > 0) {
         // console.log(eventsInThisSlot)
         let sorted = sortArrays(eventsInThisSlot);
-        console.log(sorted)
+        // console.log(sorted)
         let width = 100;
         let updEvents = [...events];
         let index = -1;
-        let localZIndex = 0; 
+        let localZIndex = 0;
         for (let event of sorted) {
-          console.log('width1', width)
+          // console.log('width1', width)
           // console.log(event.id)
+          width = findParentWidth(slot)
           index = updEvents.findIndex(obj => obj.id === event.id);
-          updEvents[index].width = width * ((sorted.indexOf(event) + 1) / sorted.length);
+          updEvents[index].width = width * (1 - (sorted.indexOf(event) / sorted.length));
           updEvents[index].zIndex = localZIndex;
           localZIndex++
-          console.log(localZIndex)
+          // console.log(localZIndex)
           setevents([
             ...updEvents
           ]);
-          // console.log('sorted length',sorted.length) 
-          // console.log('width before',width) 
-          // // width = width * ((sorted.indexOf(event) + 1) / sorted.length)
-          // console.log('width after',width) 
         }
         setzIndex(localZIndex)
-        console.log('sorted', sorted)
+        // findParentWidth(slot)
+        // console.log('sorted', sorted)
+        // console.log('exclude', findParentWidth(slot))
       }
 
     }
   }
 
+  const findParentWidth = (slot) => {
+    let eventsInDiffSlots = events.filter((event) => (
+      event.startTime !== slot
+    ));
+    // Remove last position as it is not part of the visual area //
+    let modifiedEvents = {};
+    let modifiedEventsList = [];
+    let eventCopy = [...eventsInDiffSlots]
+    for (let event of eventCopy) {
+      if (event.id) {
+        console.log('event bs', event.seq)
+        event.seq.splice(event.seq.length - 1, 1)
+        console.log('event as', event.seq)
+        modifiedEvents = {
+          ...event,
+          seq: event.seq
+        }
+        modifiedEventsList = [...modifiedEventsList, modifiedEvents]
+      }
+    }
+    let parentEvents = modifiedEventsList.filter((event) => event.seq.includes(slot))
+    // console.log('find parent width', parentEvents)
+    let sortByWidth = sortArrays(parentEvents)
+    console.log('sortByWidth', sortByWidth)
+    let baseWidth = 100;
+    if (sortByWidth.length > 0) {
+      baseWidth = sortByWidth[0].width - 10;
+    }
+    console.log('baseWidth', baseWidth)
+
+    return baseWidth
+  }
+
+
+
   const sortArrays = (filteredEvents) => {
     return filteredEvents.sort((a, b) => (
-      a.seq.length - b.seq.length
+      b.seq.length - a.seq.length
     ))
   }
-  // getCollisions();
-
-  useEffect(() => {
-
-  }, [])
 
   return (
     <div className='calendar-day'>
