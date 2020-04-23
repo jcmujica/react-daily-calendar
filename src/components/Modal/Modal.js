@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from 'react'
 import { DateTime } from 'luxon';
 import { CalendarContext } from '../Calendar/Calendar';
 
-function CreateModal(props) {
+function Modal(props) {
   const { duration, active, modalMode } = props;
   const { columnHeight, eventList, seteventList, id } = useContext(CalendarContext);
   const [event, setevent] = useState({});
@@ -101,4 +101,4 @@ function CreateModal(props) {
   )
 };
 
-export default CreateModal;
+export default Modal;

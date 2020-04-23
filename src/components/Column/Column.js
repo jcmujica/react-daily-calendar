@@ -10,6 +10,7 @@ function Column(props) {
   const [zIndexState, setzIndexState] = useState(0);
 
   const createEvent = (e) => {
+    console.log('events', events)
     let startTime = e.target.id;
     let endTime = day[day.indexOf(e.target.id) + 1]; //+2 ??
     let newEvent = {
@@ -32,7 +33,12 @@ function Column(props) {
     let updEvents = [...events, newEvent];
     setevents(updEvents);
     console.log(newEvent.seq);
+    // getCollisions()
   };
+
+  useEffect(() => {
+    // getCollisions()
+  })
 
   const handleResizeStop = (e, dir, ref, delta, id, height) => {
     let updEvents = [...events];
@@ -55,6 +61,7 @@ function Column(props) {
     setevents([
       ...updEvents,
     ]);
+    getCollisions()
   };
 
   const handleDragStop = (e, data, id) => {
@@ -82,6 +89,7 @@ function Column(props) {
     setevents([
       ...updEvents,
     ]);
+    getCollisions();
   };
 
   const getSequence = (start, end, array) => {
@@ -98,9 +106,10 @@ function Column(props) {
     };
   };
 
-  const getCollisions = (slot) => {
+  const getCollisions = () => {
     console.log('entry', events)
     let zIndex = 0;
+    setzIndexState(0);
     for (let slot of day) {
       let eventsInThisSlot = events.filter((event) => (
         event.startTime === slot
@@ -131,6 +140,7 @@ function Column(props) {
         // console.log('exclude', findParentWidth(slot))
       }
     }
+    setzIndexState(zIndex);
   }
 
   const findParentWidth = (slot) => {
@@ -205,6 +215,7 @@ function Column(props) {
           style={{ backgroundColor: '#1a73e8', zIndex: event.zIndex }}
           onResizeStop={(e, dir, ref, delta) => handleResizeStop(e, dir, ref, delta, event.id, event.height)}
           onDragStop={(e, data) => handleDragStop(e, data, event.id, event.yOffset, events)}
+        // onHover={alert()}
         // onClick={alert('hola')}
         >
           {event.startTime}
