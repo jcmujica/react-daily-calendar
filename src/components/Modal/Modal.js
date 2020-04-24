@@ -85,24 +85,27 @@ function Modal(props) {
           <section className="modal-card-body">
             {modalInfo.fields.length > 0 ? modalInfo.fields.map((field) =>
               (
-                <div class="field is-horizontal">
-                  <div class="field-label is-normal">
-                    <label class="label">Normal label</label>
+                <div className="field is-horizontal">
+                  <div className="field-label is-small">
+                    <label className="label">{field.label}</label>
                   </div>
-                  <div class="field-body"></div>
-                  <div className="field" key={`field_${field.name}`}>
-                    <div className="control" key={`control_${field.name}`}>
-                      <input
-                        className="input is-small"
-                        type="text"
-                        placeholder={field.label}
-                        name={field.name}
-                        value={event[field.name] || ''}
-                        onChange={e => handleChange(e)}
-                      ></input>
+                  <div className="field-body">
+                    <div className="field">
+                      <div className="control is-expanded" key={`control_${field.name}`}>
+                        <input
+                          className="input is-small"
+                          type="text"
+                          placeholder={field.label}
+                          name={field.name}
+                          value={event[field.name] || ''}
+                          onChange={e => handleChange(e)}
+                        ></input>
+                      </div>
                     </div>
                   </div>
                 </div>
+
+
               )) : null}
           </section>
           <footer className="modal-card-foot">
