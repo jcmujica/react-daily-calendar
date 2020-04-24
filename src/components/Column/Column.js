@@ -31,9 +31,9 @@ function Column(props) {
       zIndex: 0
     };
     let updEvents = [...events, newEvent];
+    getCollisions(updEvents)
     setevents(updEvents);
     console.log(newEvent.seq);
-    // getCollisions()
   };
 
   useEffect(() => {
@@ -61,7 +61,7 @@ function Column(props) {
     setevents([
       ...updEvents,
     ]);
-    getCollisions()
+    getCollisions(updEvents)
   };
 
   const handleDragStop = (e, data, id) => {
@@ -89,7 +89,7 @@ function Column(props) {
     setevents([
       ...updEvents,
     ]);
-    getCollisions();
+    getCollisions(updEvents);
   };
 
   const getSequence = (start, end, array) => {
@@ -106,7 +106,7 @@ function Column(props) {
     };
   };
 
-  const getCollisions = () => {
+  const getCollisions = (events = []) => {
     console.log('entry', events)
     let zIndex = 0;
     setzIndexState(0);
@@ -141,6 +141,7 @@ function Column(props) {
       }
     }
     setzIndexState(zIndex);
+
   }
 
   const findParentWidth = (slot) => {
@@ -198,7 +199,6 @@ function Column(props) {
           {time}
         </div>
       ))}
-      <button onClick={getCollisions} >Test</button>
       {events.filter((event) => getDay(event.startTime, day[0])).map((event) => (
         <Rnd
           className='calendar-resizable'
