@@ -1,4 +1,6 @@
 .calendar {
+  min-width: 800px;
+  overflow-x: auto;
   &-sidebar {
     padding-top: 300px;
     .checkbox {
@@ -33,16 +35,21 @@
   &-grid {
     user-select: none;
     display: flex;
-    // flex-direction: column;
+    padding-top: 15px;
     flex-wrap: wrap;
     color: #3c4043;
     font-size: 0.8rem;
+    overflow-y: scroll;
+    height: 75vh;
   }
   &-day {
     display: flex;
     flex-direction: column;
-    width: 12.5%;
+    width: 13.5%;
     position: relative;
+    &:first-child {
+      width: 5.5%;
+    }
   }
   &-time {
     border: 1px solid #dbdbdb;
@@ -51,7 +58,18 @@
     &__control {
       border: 1px solid #dbdbdb;
       border-width: 1px 1px 0 0;
-      width: 9%;
+      justify-content: center;
+      display: flex;
+      // padding-top: -15px;
+      // width: 9%;
+      span {
+        display: flex;
+        justify-content: center;
+        overflow: visible;
+        margin-top: -10px;
+        background-color: white;
+        width: 90%;
+      }
     }
   }
   &-title {
@@ -108,6 +126,10 @@
     display: flex;
     margin-bottom: 20px;
     width: 100%;
+    overflow-y: scroll;
+    &::-webkit-scrollbar {
+      background-color: white;
+    }
     &__element {
       display: flex;
       flex-direction: column;
@@ -115,16 +137,9 @@
       align-items: center;
       width: 13.5%;
       &-first {
-        width: 9%;
+        width: 5.5%;
       }
     }
-  }
-  &-control {
-    margin: -10px auto 0 auto;
-    text-align: center;
-    width: 80%;
-    font-size: 0.8rem;
-    background-color: white;
   }
   &-event {
     overflow: visible;

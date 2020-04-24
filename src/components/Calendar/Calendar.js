@@ -11,7 +11,7 @@ function Calendar() {
   const [week, setweek] = useState({ control: [], mon: [], tue: [], wed: [], thu: [], fri: [], sat: [], sun: [] });;
   const [columnHeight, setcolumnHeight] = useState(30); //cellHeight
   const [eventList, seteventList] = useState({});
-  const [cellRange, setcellRange] = useState(10); //minutes
+  const [cellRange, setcellRange] = useState(15); //minutes
   const [activeWeek, setactiveWeek] = useState(today.startOf('week'));
   const [displayMonthYear, setdisplayMonthYear] = useState(today.startOf('week').toFormat('LLLL yyyy'));
   const [activeModal, setactiveModal] = useState(false);
@@ -21,7 +21,7 @@ function Calendar() {
 
   const cellDuration = Duration.fromObject({ minutes: cellRange });
   const startTime = Duration.fromObject({ hours: 8 });
-  const endTime = Duration.fromObject({ hours: 12 });
+  const endTime = Duration.fromObject({ hours: 20 });
   const start = DateTime.local().startOf('day').plus(startTime);
   const end = DateTime.local().startOf('day').plus(endTime);
   const range = end.diff(start, ['hours']).hours;

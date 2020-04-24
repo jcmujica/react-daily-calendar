@@ -186,19 +186,22 @@ function Column(props) {
   }
 
   return (
+
     <div className='calendar-day'>
-      {day.map((time) => (
-        <div
-          key={time}
-          id={time}
-          className='calendar-time'
-          style={{ 'height': `${columnHeight}px` }}
-          onClick={(e) => createEvent(e)}
-        >
-          {/* {time.includes(':') ? time : null} */}
-          {time}
-        </div>
-      ))}
+      {day.map((time) => {
+        let control = time.includes(':') ? true : false;
+        return (
+          <div
+            key={time}
+            id={time}
+            className={control ? 'calendar-time__control' : 'calendar-time'}
+            style={{ 'height': `${columnHeight}px` }}
+            onClick={control ? null : (e) => createEvent(e)}
+          >
+            {control ? <span>{time}</span> : null}
+          </div>
+        )
+      })}
       {events.filter((event) => getDay(event.startTime, day[0])).map((event) => (
         <Rnd
           className='calendar-resizable'
