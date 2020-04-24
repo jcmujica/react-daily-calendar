@@ -5,8 +5,8 @@ import { DateTime } from 'luxon';
 import { v4 as uuid } from 'uuid';
 
 function Column(props) {
-  const { columnHeight } = useContext(CalendarContext);
-  const { day, events, setevents } = props;
+  const { columnHeight, events, setevents, handleCreate, handleEdit } = useContext(CalendarContext);
+  const { day } = props;
   const [zIndexState, setzIndexState] = useState(0);
 
   const createEvent = (e) => {
@@ -196,7 +196,7 @@ function Column(props) {
             id={time}
             className={control ? 'calendar-time__control' : 'calendar-time'}
             style={{ 'height': `${columnHeight}px` }}
-            onClick={control ? null : (e) => createEvent(e)}
+            onClick={control ? null : (e) => handleCreate(e)}
           >
             {control ? <span>{time}</span> : null}
           </div>
@@ -218,8 +218,8 @@ function Column(props) {
           style={{ backgroundColor: '#1a73e8', zIndex: event.zIndex }}
           onResizeStop={(e, dir, ref, delta) => handleResizeStop(e, dir, ref, delta, event.id, event.height)}
           onDragStop={(e, data) => handleDragStop(e, data, event.id, event.yOffset, events)}
-        // onHover={alert()}
-        // onClick={alert('hola')}
+          // onHover={alert()}
+          onClick={(id) => handleEdit(id)}
         >
           {event.startTime}
         </Rnd>

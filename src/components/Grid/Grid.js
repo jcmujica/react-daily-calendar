@@ -14,18 +14,14 @@ function Grid(props) {
 
   useEffect(() => {
   }, []);
-  const [events, setevents] = useState([]);
 
   return (
     <div className='calendar-grid'>
-      {/* <Modal /> */}
       {dayBlock.map((day) => {
         return (
           <Column
             day={day}
             key={uuid()}
-            events={events}
-            setevents={setevents}
           />
         )
       })}

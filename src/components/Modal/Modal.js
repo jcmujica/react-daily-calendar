@@ -9,9 +9,17 @@ function Modal(props) {
   const [modalInfo, setModalInfo] = useState({
     title: '',
     fields: [
-      { label: 'Title', name: 'title' }, { label: 'Assignee', name: 'assignee' }, { label: 'Assigned', name: 'assigned' }
+      { label: 'Name', name: 'name' },
+      { label: 'Description', name: 'description' },
     ]
   });
+
+  // owner: '',
+  //   participant: [{}, {}, {}],
+  //     resources: [],
+  //       color: 'blue',
+  //         name: 'Event ',
+  //           desc: '',
 
   useEffect(() => {
     if (modalMode === 'create') {
@@ -77,16 +85,22 @@ function Modal(props) {
           <section className="modal-card-body">
             {modalInfo.fields.length > 0 ? modalInfo.fields.map((field) =>
               (
-                <div className="field" key={`field_${field.name}`}>
-                  <div className="control" key={`control_${field.name}`}>
-                    <input
-                      className="input is-small"
-                      type="text"
-                      placeholder={field.label}
-                      name={field.name}
-                      value={event[field.name] || ''}
-                      onChange={e => handleChange(e)}
-                    ></input>
+                <div class="field is-horizontal">
+                  <div class="field-label is-normal">
+                    <label class="label">Normal label</label>
+                  </div>
+                  <div class="field-body"></div>
+                  <div className="field" key={`field_${field.name}`}>
+                    <div className="control" key={`control_${field.name}`}>
+                      <input
+                        className="input is-small"
+                        type="text"
+                        placeholder={field.label}
+                        name={field.name}
+                        value={event[field.name] || ''}
+                        onChange={e => handleChange(e)}
+                      ></input>
+                    </div>
                   </div>
                 </div>
               )) : null}

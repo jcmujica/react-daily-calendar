@@ -18,6 +18,7 @@ function Calendar() {
   const [activeEventId, setactiveEvent] = useState('');
   const [modalMode, setmodalMode] = useState('');
   const [weekDays, setweekDays] = useState([]);
+  const [events, setevents] = useState([]);
 
   const cellDuration = Duration.fromObject({ minutes: cellRange });
   const startTime = Duration.fromObject({ hours: 8 });
@@ -136,6 +137,7 @@ function Calendar() {
   /* RENDER */
 
   const handleCreate = (id) => {
+    console.log(id.target.id)
     setactiveEvent(id)
     setmodalMode('create')
     setactiveModal(true)
@@ -149,7 +151,7 @@ function Calendar() {
 
   return (
     <div className='calendar'>
-      <CalendarContext.Provider value={{ cellRange, columnHeight, eventList, seteventList, week, handleEdit, id: activeEventId }}>
+      <CalendarContext.Provider value={{ cellRange, columnHeight, week, handleCreate, handleEdit, id: activeEventId, events, setevents }}>
         {activeModal ?
           <Modal
             duration={cellDuration}
