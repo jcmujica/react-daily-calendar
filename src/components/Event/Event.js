@@ -1,73 +1,169 @@
-import React, { useContext } from 'react'
-import { DateTime } from 'luxon';
-import { Resizable } from 're-resizable';
+import React, { useState, useEffect, useContext } from 'react'
+import { Rnd } from 'react-rnd'
 import { CalendarContext } from '../Calendar/Calendar';
 
-function Event(props) {
-  const { id } = props;
-  const { cellRange, columnHeight, eventList, seteventList, week, handleEdit } = useContext(CalendarContext);
-  const { height } = eventList[id];
+function Event({ event, day }) {
+  const { columnHeight, events, setevents, handleEdit, activeModal, newEvent, setNewEvent } = useContext(CalendarContext);
+  const [zIndexState, setzIndexState] = useState(0);
+  // console.log('day 1', day)
 
-  const handleResizeStop = (e, dir, ref, delta, id) => {
-    const maxHeight = getMaxHeight(id);
-    const resizedHeight = eventList[id].height + delta.height;
-    const appliedHeight = resizedHeight <= maxHeight ? resizedHeight : maxHeight;
-    const newEndTime = calculateEndTime(appliedHeight, id);
-    seteventList({
-      ...eventList,
-      [id]: {
-        ...eventList[id],
-        height: appliedHeight,
-        endTime: newEndTime
-      }
-    })
-  };
+  const getCollisions = (events = [], day) => {
+    let sorted = [];
+    let width;
+    let updEvents;
+    let index;
+    let eventsCopy;
+    let eventsInDiffSlots;
+    let modifiedEvents;
+    let modifiedEventsList;
+    let eventCopy;
+    let parentEvents;
+    let sortByWidth;
+    let baseWidth;
+    let updWidths = [];
 
-  const getMaxHeight = (id) => {
-    let indexOfNext = -1
-    for (let days in week) {
-      let day = week[days]
-      if (day.indexOf(id) !== -1) {
-        //Check the next event in the day
-        let restOfDay = day.slice(day.indexOf(id) + 1)
-        for (const time of restOfDay) {
-          if (eventList[time]) {
-            indexOfNext = restOfDay.indexOf(time)
-            break;
+    let zIndex = 0;
+    setzIndexState(zIndex);
+    for (let slot of day) {
+      let eventsInThisSlot = events.filter((event) => (
+        event.startTime === slot
+      ));
+      if (eventsInThisSlot.length > 0) {
+        sorted = sortArrays(eventsInThisSlot);
+        width = 100;
+        updEvents = [...events];
+        index = -1;
+        for (let event of sorted) {
+          eventsCopy = [];
+          eventsInDiffSlots = [];
+          modifiedEvents = {};
+          modifiedEventsList = [];
+          eventCopy = [];
+          parentEvents = [];
+          sortByWidth = [];
+          baseWidth = 90;
+          eventsCopy = [...events];
+          eventsInDiffSlots = eventsCopy.filter((event) => (
+            event.startTime !== slot
+          ));
+          /* Remove last position as it is not part of the visual area */
+          eventCopy = [...eventsInDiffSlots]
+          for (let event of eventCopy) {
+            if (event.id) {
+              let seqCopy = event.seq.slice(0, -1);
+              modifiedEvents = { ...event, seq: seqCopy };
+              modifiedEventsList = [...modifiedEventsList, modifiedEvents];
+            };
+          };
+          parentEvents = modifiedEventsList.filter((event) => event.seq.includes(slot));
+          sortByWidth = sortArrays(parentEvents);
+          if (sortByWidth.length > 0) {
+            baseWidth = sortByWidth[sortByWidth.length - 1].width - 10;
           }
-        }
+          index = updEvents.findIndex(obj => obj.id === event.id);
+          updEvents[index].width = baseWidth * (1 - (sorted.indexOf(event) / sorted.length));
+          updEvents[index].zIndex = zIndex;
+          zIndex++;
+          updWidths = [...updEvents];
+        };
       }
     }
-    if (indexOfNext !== -1) {
-      return columnHeight * (indexOfNext + 1)
-    } else {
-      return Infinity
-    }
+    setzIndexState(zIndex);
+    return updWidths
   };
 
-  const calculateEndTime = (height, id) => {
-    const steps = height / columnHeight
-    console.log(id)
-    const startTime = DateTime.fromJSDate(eventList[id].startTime)
-    const endTime = startTime.plus({ minutes: (cellRange * steps) })
-    return endTime
-  }
+  const handleResizeStop = (e, dir, ref, delta, id, height) => {
+    let updEvents = [...events];
+    let index = updEvents.findIndex(obj => obj.id === id);
+    let newStartTime = updEvents[index].startTime;
+    let newEndTime = updEvents[index].endTime;
+    let updWidths = [];
+    updEvents[index].height = height + delta.height;
+    if (dir === 'top') {
+      updEvents[index].yOffset = updEvents[index].yOffset - delta.height;
+      newStartTime = day[day.indexOf(updEvents[index].startTime) - (delta.height / columnHeight)];
+      updEvents[index].startTime = newStartTime;
+    } else if (dir === 'bottom') {
+      newEndTime = day[day.indexOf(updEvents[index].endTime) + (delta.height / columnHeight)];
+      updEvents[index].endTime = newEndTime;
+    };
+    updEvents[index].seq = getSequence(newStartTime, newEndTime, day);
+    updWidths = getCollisions(updEvents, day)
+    setevents([
+      ...updWidths,
+    ]);
+  };
+
+  const handleDragStop = (e, data, id) => {
+    let offset = 0;
+    let section = data.y / columnHeight;
+    let int = parseInt(section);
+    let dec = (section - int) * 100;
+    let updWidths = [];
+    if (dec < 50) {
+      offset = columnHeight * int;
+    } else {
+      offset = columnHeight * (int + 1);
+    }
+    let updEvents = [...events];
+    let index = updEvents.findIndex(obj => obj.id === id);
+    let arrayRange = day.indexOf(updEvents[index].endTime) - day.indexOf(updEvents[index].startTime);
+    let newStartTime = day[offset / columnHeight];
+    let newEndTime = day[arrayRange + (offset / columnHeight)];
+    updEvents[index].yOffset = offset;
+    updEvents[index].startTime = newStartTime;
+    updEvents[index].endTime = newEndTime;
+    updEvents[index].seq = getSequence(newStartTime, newEndTime, day);
+    updWidths = getCollisions(updEvents, day)
+    setevents([
+      ...updWidths,
+    ]);
+  };
+
+  const getSequence = (start, end, array) => {
+    let arrayCopy = [...array];
+    return arrayCopy.splice(arrayCopy.indexOf(start), (arrayCopy.indexOf(end) - arrayCopy.indexOf(start) + 1));
+  };
+
+  const sortArrays = (filteredEvents) => {
+    return filteredEvents.sort((a, b) => (
+      b.seq.length - a.seq.length
+    ))
+  };
+
+  useEffect(() => {
+    let updWidths = [];
+    if (newEvent) {
+      setNewEvent(false);
+      updWidths = getCollisions(events, day);
+      setevents([
+        ...updWidths
+      ])
+    }
+  }, [newEvent])
 
   return (
-    <div>
-      <Resizable
+    <>
+      <Rnd
         className='calendar-resizable'
-        enable={{ top: true, bottom: true }}
-        grid={[0, (columnHeight)]}
-        key={id}
+        dragAxis={'y'}
+        bounds={'parent'}
+        default={{ x: 0, y: columnHeight }}
+        key={event.id}
+        id={event.id}
+        position={{ x: event.xOffset, y: event.yOffset }}
+        enableResizing={{ top: true, bottom: true }}
+        resizeGrid={[0, columnHeight]}
         minHeight={columnHeight}
-        size={{ width: '100%', height: height }}
-        onClick={() => handleEdit(id)}
-        onResizeStop={(e, dir, ref, delta) => handleResizeStop(e, dir, ref, delta, id)}
+        size={{ width: `${event.width}%`, height: `${event.height}` }}
+        style={{ backgroundColor: '#1a73e8', zIndex: event.zIndex }}
+        onResizeStop={(e, dir, ref, delta) => handleResizeStop(e, dir, ref, delta, event.id, event.height)}
+        onDragStop={(e, data) => handleDragStop(e, data, event.id, event.yOffset, events)}
+        onClick={(id) => handleEdit(id)}
       >
-        {eventList[id].title}
-      </Resizable >
-    </div>
+        <span>{event.name}</span>
+      </Rnd>
+    </>
   )
 }
 

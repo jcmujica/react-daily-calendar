@@ -4,20 +4,21 @@ import Column from '../Column/Column';
 import { v4 as uuid } from 'uuid';
 import Modal from '../Modal/Modal';
 
-function Grid(props) {
+function Grid() {
   const { week } = useContext(CalendarContext);
+  const [days, setdays] = useState([]);
   let dayBlock = [];
 
-  for (let day in week) {
-    dayBlock = [...dayBlock, week[day]]
-  };
-
   useEffect(() => {
-  }, []);
+    for (let day in week) {
+      dayBlock = [...dayBlock, week[day]]
+    };
+    setdays(dayBlock)
+  }, [week]);
 
   return (
     <div className='calendar-grid'>
-      {dayBlock.map((day) => {
+      {days.map((day) => {
         return (
           <Column
             day={day}

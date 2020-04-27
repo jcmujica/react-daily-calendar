@@ -11,7 +11,7 @@ function Calendar() {
   const [week, setweek] = useState({ control: [], mon: [], tue: [], wed: [], thu: [], fri: [], sat: [], sun: [] });;
   const [columnHeight, setcolumnHeight] = useState(30); //cellHeight
   const [eventList, seteventList] = useState({});
-  const [cellRange, setcellRange] = useState(15); //minutes
+  const [timeRange, setTimeRange] = useState(15); //minutes
   const [activeWeek, setactiveWeek] = useState(today.startOf('week'));
   const [displayMonthYear, setdisplayMonthYear] = useState(today.startOf('week').toFormat('LLLL yyyy'));
   const [activeModal, setactiveModal] = useState(false);
@@ -19,8 +19,9 @@ function Calendar() {
   const [modalMode, setmodalMode] = useState('');
   const [weekDays, setweekDays] = useState([]);
   const [events, setevents] = useState([]);
+  const [newEvent, setNewEvent] = useState(false)
 
-  const cellDuration = Duration.fromObject({ minutes: cellRange });
+  const cellDuration = Duration.fromObject({ minutes: timeRange });
   const startTime = Duration.fromObject({ hours: 8 });
   const endTime = Duration.fromObject({ hours: 20 });
   const start = DateTime.local().startOf('day').plus(startTime);
@@ -136,22 +137,33 @@ function Calendar() {
 
   /* RENDER */
 
-  const handleCreate = (id) => {
-    console.log(id.target.id)
-    setactiveEvent(id)
-    setmodalMode('create')
-    setactiveModal(true)
+  const handleCreate = (e) => {
+    setactiveEvent(e.target.id);
+    setmodalMode('create');
+    setactiveModal(true);
   }
 
   const handleEdit = (id) => {
-    setactiveEvent(id)
-    setmodalMode('edit')
-    setactiveModal(true)
+    setactiveEvent(id);
+    setmodalMode('edit');
+    setactiveModal(true);
   }
 
   return (
     <div className='calendar'>
-      <CalendarContext.Provider value={{ cellRange, columnHeight, week, handleCreate, handleEdit, id: activeEventId, events, setevents }}>
+      <CalendarContext.Provider value={{
+        activeModal,
+        newEvent,
+        setNewEvent,
+        cellRange: timeRange,
+        columnHeight,
+        week,
+        handleCreate,
+        handleEdit,
+        id: activeEventId,
+        events,
+        setevents,
+      }}>
         {activeModal ?
           <Modal
             duration={cellDuration}
@@ -186,7 +198,7 @@ function Calendar() {
           )) : null}
         </div>
         <Grid
-          cellRange={cellRange}
+          cellRange={timeRange}
           handleCreate={handleCreate}
         />
       </CalendarContext.Provider>

@@ -1,47 +1,61 @@
 import React, { useState, useEffect, useContext } from 'react'
 import { DateTime } from 'luxon';
 import { CalendarContext } from '../Calendar/Calendar';
+import { v4 as uuid } from 'uuid';
 
 function Modal(props) {
   const { duration, active, modalMode } = props;
-  const { columnHeight, eventList, seteventList, id } = useContext(CalendarContext);
-  const [event, setevent] = useState({});
+  const { columnHeight, events, setevents, id, week, setNewEvent } = useContext(CalendarContext);
+  const [modalEvent, setmodalEvent] = useState({});
   const [modalInfo, setModalInfo] = useState({
     title: '',
     fields: [
       { label: 'Name', name: 'name' },
-      { label: 'Description', name: 'description' },
+      { label: 'Description', name: 'desc' },
     ]
   });
 
-  // owner: '',
-  //   participant: [{}, {}, {}],
-  //     resources: [],
-  //       color: 'blue',
-  //         name: 'Event ',
-  //           desc: '',
-
   useEffect(() => {
+    let dayArray = [];
+    for (let day in week) {
+      dayArray = [...dayArray, week[day]]
+    };
+    let day = dayArray.filter((day) => day.includes(id))
+    if (day.length > 0) {
+      day = day[0];
+    }
+
     if (modalMode === 'create') {
+      let startTime = id;
+      let endTime = day[day.indexOf(id) + 1]; //+2 ??
       setModalInfo({
         ...modalInfo,
         title: 'Please enter the required information',
       });
-      setevent({
-        title: '',
-        assignee: '',
-        assigned: '',
+      setmodalEvent({
+        id: uuid(),
+        startTime: startTime,
+        endTime: endTime,
+        name: '',
+        owner: '',
+        participants: [],
+        resources: [],
+        desc: '',
         height: columnHeight,
-        startTime: DateTime.fromMillis(parseInt(id)).toJSDate(),
-        endTime: DateTime.fromMillis(parseInt(id)).plus(duration).toJSDate()
+        color: 'blue',
+        width: 90,
+        seq: [startTime, endTime],
+        yOffset: day.indexOf(id) * columnHeight,
+        xOffset: 0,
+        zIndex: 0
       });
     } else if (modalMode === 'edit') {
       setModalInfo({
         ...modalInfo,
         title: 'Please edit the required information',
       });
-      setevent({
-        ...eventList[id]
+      setevents({
+        ...events[id]
       });
     } else if (modalMode === 'delete') {
       setModalInfo({
@@ -53,20 +67,21 @@ function Modal(props) {
 
   const handleChange = (e) => {
     let { name, value } = e.target;
-    setevent({
-      ...event,
+    setmodalEvent({
+      ...modalEvent,
       [name]: value
     });
+    // console.log(modalEvent);
   };
 
   const acceptModal = () => {
-    seteventList({
-      ...eventList,
-      [id]: {
-        ...event
-      }
-    });
+    setevents([
+      ...events,
+      modalEvent
+    ]);
+    setNewEvent(true);
     active(false);
+    // console.log('events', events)
   };
 
   const cancelModal = () => {
@@ -97,15 +112,13 @@ function Modal(props) {
                           type="text"
                           placeholder={field.label}
                           name={field.name}
-                          value={event[field.name] || ''}
+                          value={modalEvent[field.name] || ''}
                           onChange={e => handleChange(e)}
                         ></input>
                       </div>
                     </div>
                   </div>
                 </div>
-
-
               )) : null}
           </section>
           <footer className="modal-card-foot">
