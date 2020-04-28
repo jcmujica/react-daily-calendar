@@ -2,10 +2,13 @@ import React, { useState, useEffect, useContext } from 'react'
 import { DateTime } from 'luxon';
 import { CalendarContext } from '../Calendar/Calendar';
 import { v4 as uuid } from 'uuid';
+import { UserContext } from '../../contexts/UserContext';
 
 function Modal(props) {
   const { duration, active, modalMode } = props;
   const { columnHeight, events, setevents, id, week, setNewEvent } = useContext(CalendarContext);
+  const { users, displayUsers, setdisplayUsers, currentUser, setcurrentUser } = useContext(UserContext);
+
   const [modalEvent, setmodalEvent] = useState({});
   const [deleteStage, setdeleteStage] = useState('');
   const [modalInfo, setModalInfo] = useState({
@@ -38,12 +41,12 @@ function Modal(props) {
         startTime: startTime,
         endTime: endTime,
         name: '',
-        owner: '',
+        owner: currentUser,
         participants: [],
         resources: [],
         desc: '',
         height: columnHeight,
-        color: 'blue',
+        color: currentUser.color,
         width: 90,
         seq: [startTime, endTime],
         yOffset: day.indexOf(id) * columnHeight,

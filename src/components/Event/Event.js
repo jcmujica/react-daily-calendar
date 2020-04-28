@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useContext } from 'react'
 import { Rnd } from 'react-rnd'
 import { CalendarContext } from '../Calendar/Calendar';
+import { UserContext } from '../../contexts/UserContext';
 
 function Event({ event, day }) {
   const { columnHeight, events, setevents, handleEdit, activeModal, newEvent, setNewEvent } = useContext(CalendarContext);
   const [zIndexState, setzIndexState] = useState(0);
-  // console.log('day 1', day)
+  const { users, displayUsers, setdisplayUsers, currentUser, setcurrentUser, usersChanged, setusersChanged } = useContext(UserContext);
 
   const getCollisions = (events = [], day) => {
     let sorted = [];
@@ -21,6 +22,13 @@ function Event({ event, day }) {
     let sortByWidth;
     let baseWidth;
     let updWidths = [];
+
+    /* 
+    
+    try to filter the events that get into get collisions to the filtered ones 
+    
+    */
+
 
     let zIndex = 0;
     setzIndexState(zIndex);
@@ -142,6 +150,18 @@ function Event({ event, day }) {
     }
   }, [newEvent]);
 
+  useEffect(() => {
+    let updWidths = [];
+    if (usersChanged) {
+      setusersChanged(false);
+      updWidths = getCollisions(events, day);
+      setevents([
+        ...updWidths
+      ])
+
+    }
+  }, [usersChanged]);
+
   return (
     <>
       <Rnd
@@ -156,7 +176,10 @@ function Event({ event, day }) {
         resizeGrid={[0, columnHeight]}
         minHeight={columnHeight}
         size={{ width: `${event.width}%`, height: `${event.height}` }}
-        style={{ backgroundColor: '#1a73e8', zIndex: event.zIndex }}
+        style={{
+          backgroundColor: users.filter((el) => el.id === event.owner)[0].settings.color,
+          zIndex: event.zIndex
+        }}
         onContextMenu={(e) => handleEdit(e)}
         onResizeStop={(e, dir, ref, delta) => handleResizeStop(e, dir, ref, delta, event.id, event.height)}
         onDragStop={(e, data) => handleDragStop(e, data, event.id, event.yOffset, events)}

@@ -201,7 +201,6 @@ function Calendar() {
         </div>
         <Grid
           cellRange={timeRange}
-          handleCreate={handleCreate}
         />
       </CalendarContext.Provider>
     </div>

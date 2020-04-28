@@ -24,9 +24,11 @@ function UserContextProvider(props) {
     }
   ])
 
-  const [displayUsers, setdisplayUsers] = useState([1])
+  const [displayUsers, setdisplayUsers] = useState([1]);
+  const [currentUser, setcurrentUser] = useState(1);
+  const [usersChanged, setusersChanged] = useState(false);
   return (
-    <UserContext.Provider value={{ users, displayUsers, setdisplayUsers }}>
+    <UserContext.Provider value={{ users, displayUsers, setdisplayUsers, currentUser, setcurrentUser, usersChanged, setusersChanged }}>
       {props.children}
     </UserContext.Provider>
   )

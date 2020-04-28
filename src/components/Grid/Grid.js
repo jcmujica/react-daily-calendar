@@ -4,7 +4,7 @@ import Column from '../Column/Column';
 import { v4 as uuid } from 'uuid';
 
 function Grid() {
-  const { week, handleEdit } = useContext(CalendarContext);
+  const { week } = useContext(CalendarContext);
   const [days, setdays] = useState([]);
   let dayBlock = [];
 

@@ -3,9 +3,11 @@ import { CalendarContext } from '../Calendar/Calendar';
 import { DateTime } from 'luxon';
 import { v4 as uuid } from 'uuid';
 import Event from '../Event/Event';
+import { UserContext } from '../../contexts/UserContext';
 
 function Column(props) {
   const { columnHeight, events, setevents, handleCreate, handleEdit } = useContext(CalendarContext);
+  const { users, displayUsers, setdisplayUsers, currentUser, setcurrentUser } = useContext(UserContext);
   const { day } = props;
 
 
@@ -33,14 +35,16 @@ function Column(props) {
         )
       })}
       {events.length > 0 ?
-        events.filter((event) => getDay(event.startTime, day[0])).map((event) => (
-          <Event
-            day={day}
-            event={event}
-            key={uuid()}
-          // onClick={() => test()}
-          />
-        ))
+        events
+          .filter((event) => getDay(event.startTime, day[0]))
+          .filter((event) => (displayUsers.includes(event.owner)))
+          .map((event) => (
+            <Event
+              day={day}
+              event={event}
+              key={uuid()}
+            />
+          ))
         : null}
     </div>
   )
