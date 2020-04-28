@@ -29,11 +29,11 @@ function Event({ event, day }) {
     
     */
 
-
+    let filteredEvents = events.filter((event) => (displayUsers.includes(event.owner)));
     let zIndex = 0;
     setzIndexState(zIndex);
     for (let slot of day) {
-      let eventsInThisSlot = events.filter((event) => (
+      let eventsInThisSlot = filteredEvents.filter((event) => (
         event.startTime === slot
       ));
       if (eventsInThisSlot.length > 0) {
