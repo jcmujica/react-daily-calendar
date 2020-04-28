@@ -140,7 +140,7 @@ function Event({ event, day }) {
         ...updWidths
       ])
     }
-  }, [newEvent])
+  }, [newEvent]);
 
   return (
     <>
@@ -157,9 +157,10 @@ function Event({ event, day }) {
         minHeight={columnHeight}
         size={{ width: `${event.width}%`, height: `${event.height}` }}
         style={{ backgroundColor: '#1a73e8', zIndex: event.zIndex }}
+        onContextMenu={(e) => handleEdit(e)}
         onResizeStop={(e, dir, ref, delta) => handleResizeStop(e, dir, ref, delta, event.id, event.height)}
         onDragStop={(e, data) => handleDragStop(e, data, event.id, event.yOffset, events)}
-        onClick={(id) => handleEdit(id)}
+
       >
         <span>{event.name}</span>
       </Rnd>

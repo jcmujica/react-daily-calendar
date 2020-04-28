@@ -2,10 +2,9 @@ import React, { useState, useEffect, useContext } from 'react'
 import { CalendarContext } from '../Calendar/Calendar';
 import Column from '../Column/Column';
 import { v4 as uuid } from 'uuid';
-import Modal from '../Modal/Modal';
 
 function Grid() {
-  const { week } = useContext(CalendarContext);
+  const { week, handleEdit } = useContext(CalendarContext);
   const [days, setdays] = useState([]);
   let dayBlock = [];
 

@@ -7,6 +7,7 @@ function Modal(props) {
   const { duration, active, modalMode } = props;
   const { columnHeight, events, setevents, id, week, setNewEvent } = useContext(CalendarContext);
   const [modalEvent, setmodalEvent] = useState({});
+  const [deleteStage, setdeleteStage] = useState('');
   const [modalInfo, setModalInfo] = useState({
     title: '',
     fields: [
@@ -54,8 +55,9 @@ function Modal(props) {
         ...modalInfo,
         title: 'Please edit the required information',
       });
-      setevents({
-        ...events[id]
+      console.log(events.findIndex((el) => el.id === id))
+      setmodalEvent({
+        ...events[events.findIndex((el) => el.id === id)]
       });
     } else if (modalMode === 'delete') {
       setModalInfo({
@@ -71,21 +73,43 @@ function Modal(props) {
       ...modalEvent,
       [name]: value
     });
-    // console.log(modalEvent);
+    console.log(modalEvent);
   };
 
   const acceptModal = () => {
-    setevents([
-      ...events,
-      modalEvent
-    ]);
+    let index = events.findIndex(obj => obj.id === id);
+    if (modalMode === 'create') {
+      setevents([
+        ...events,
+        modalEvent
+      ]);
+    } else {
+      let updEvents = [...events];
+      updEvents[index] = modalEvent;
+      setevents([
+        ...updEvents
+      ]);
+    }
     setNewEvent(true);
     active(false);
-    // console.log('events', events)
   };
 
   const cancelModal = () => {
     active(false);
+    setdeleteStage('');
+  };
+
+  const deleteEvent = () => {
+    if (!deleteStage) {
+      setdeleteStage('confirm');
+    } else {
+      let filteredArray = events.filter((event) => event.id !== id);
+      setevents([
+        ...filteredArray
+      ]);
+      setdeleteStage('');
+      active(false);
+    }
   };
 
   return (
@@ -112,6 +136,7 @@ function Modal(props) {
                           type="text"
                           placeholder={field.label}
                           name={field.name}
+                          key={field.name}
                           value={modalEvent[field.name] || ''}
                           onChange={e => handleChange(e)}
                         ></input>
@@ -124,6 +149,9 @@ function Modal(props) {
           <footer className="modal-card-foot">
             <button className="button is-success" onClick={acceptModal}>Yes</button>
             <button className="button" onClick={cancelModal}>No</button>
+            {modalMode === 'edit' ? <button className="button" onClick={deleteEvent}>
+              {deleteStage === 'confirm' ? 'Confirm' : 'Delete'}
+            </button> : null}
           </footer>
         </div>
       </div >

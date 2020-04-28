@@ -143,8 +143,10 @@ function Calendar() {
     setactiveModal(true);
   }
 
-  const handleEdit = (id) => {
-    setactiveEvent(id);
+  const handleEdit = (e) => {
+    e.preventDefault();
+    console.log(e.target.id)
+    setactiveEvent(e.target.id);
     setmodalMode('edit');
     setactiveModal(true);
   }
