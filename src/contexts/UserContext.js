@@ -5,21 +5,21 @@ export const UserContext = createContext();
 function UserContextProvider(props) {
   const [users, setusers] = useState([
     {
-      id: 1, name: 'JJ Herrera',
+      id: 1, name: 'User 1',
       settings: {
-        color: 'green'
+        color: '#48BB78'
       }
     },
     {
-      id: 2, name: 'Carlos Lopez',
+      id: 2, name: 'User 2',
       settings: {
-        color: 'blue'
+        color: '#4299E1'
       }
     },
     {
-      id: 3, name: 'Mariana Arocha',
+      id: 3, name: 'User 3',
       settings: {
-        color: 'pink'
+        color: '#FC8181'
       }
     }
   ])

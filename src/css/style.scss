@@ -1,8 +1,21 @@
 .calendar {
   min-width: 800px;
   overflow-x: auto;
+  &-leftColumn {
+    padding-right: 0;
+  }
+  &-rightColumn {
+    padding-left: 0;
+  }
   &-sidebar {
-    padding-top: 300px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100vh;
+    padding-left: 1.5rem;
+    // background-color: red;
+    border-right: 2px solid #dbdbdb;
+    // border-color: #3c4043;
     .checkbox {
       padding: 10px;
       .chk-input {
