@@ -1,21 +1,24 @@
-import React, { useState, useEffect, useContext } from 'react'
+import React, { useState, useEffect, useContext, useRef, createRef } from 'react'
 import { DateTime } from 'luxon';
-import { CalendarContext } from '../Calendar/Calendar';
+import { CalendarContext } from '../../contexts/CalendarContext';
 import { v4 as uuid } from 'uuid';
 import { UserContext } from '../../contexts/UserContext';
+import bulmaCalendar from '../../../node_modules/bulma-calendar/dist/js/bulma-calendar';
 
 function Modal(props) {
-  const { duration, active, modalMode } = props;
-  const { columnHeight, events, setevents, id, week, setNewEvent } = useContext(CalendarContext);
+  const { duration, active, modalMode, week } = props;
+  const { columnHeight, events, setevents, id, setNewEvent, timeRange } = useContext(CalendarContext);
   const { users, displayUsers, setdisplayUsers, currentUser, setcurrentUser } = useContext(UserContext);
+  const startRef = useRef();
+  const endRef = useRef();
 
   const [modalEvent, setmodalEvent] = useState({});
   const [deleteStage, setdeleteStage] = useState('');
   const [modalInfo, setModalInfo] = useState({
     title: '',
     fields: [
-      { label: 'Name', name: 'name' },
-      { label: 'Description', name: 'desc' },
+      { label: 'Name', name: 'name', type: 'text', valueKey: 'name' },
+      { label: 'Description', name: 'desc', type: 'text', valueKey: 'name' }
     ]
   });
 
@@ -32,6 +35,7 @@ function Modal(props) {
     if (modalMode === 'create') {
       let startTime = id;
       let endTime = day[day.indexOf(id) + 1]; //+2 ??
+
       setModalInfo({
         ...modalInfo,
         title: 'Please enter the required information',
@@ -70,13 +74,34 @@ function Modal(props) {
     };
   }, []);
 
+  useEffect(() => {
+    const timeInputs = bulmaCalendar.attach('[type="time"]', {
+      showClearButton: false,
+      dataIsRange: false,
+      showHeader: false
+    });
+    timeInputs.forEach((timeInput) => {
+      timeInput.on('time:selected', (time) => {
+      });
+    });
+    const element = startRef.current;
+    console.log(element)
+    if (element) {
+      element.bulmaCalendar.on('select', (datepicker) => {
+        console.log(datepicker.data.value())
+      });
+    }
+
+  }, [])
+
   const handleChange = (e) => {
-    let { name, value } = e.target;
+    let { name, value, type } = e.target;
+    console.log(type)
     setmodalEvent({
       ...modalEvent,
       [name]: value
     });
-    console.log(modalEvent);
+    // console.log(modalEvent);
   };
 
   const acceptModal = () => {
@@ -115,11 +140,16 @@ function Modal(props) {
     }
   };
 
+  const handleTime = (e) => {
+    console.log(e)
+    return "08:00"
+  };
+
   return (
     <>
       <div className="modal  is-active">
         <div className="modal-background"></div>
-        <div className="modal-card">
+        <div className="modal-card calendar-modal">
           <header className="modal-card-head">
             <p className="modal-card-title">{modalInfo.title}</p>
             <button className="delete" aria-label="close" onClick={cancelModal}></button>
@@ -127,7 +157,7 @@ function Modal(props) {
           <section className="modal-card-body">
             {modalInfo.fields.length > 0 ? modalInfo.fields.map((field) =>
               (
-                <div className="field is-horizontal">
+                <div key={field.name} className="field is-horizontal">
                   <div className="field-label is-small">
                     <label className="label">{field.label}</label>
                   </div>
@@ -136,10 +166,9 @@ function Modal(props) {
                       <div className="control is-expanded" key={`control_${field.name}`}>
                         <input
                           className="input is-small"
-                          type="text"
+                          type={field.type}
                           placeholder={field.label}
                           name={field.name}
-                          key={field.name}
                           value={modalEvent[field.name] || ''}
                           onChange={e => handleChange(e)}
                         ></input>
@@ -148,6 +177,27 @@ function Modal(props) {
                   </div>
                 </div>
               )) : null}
+            <div key={"startTime"} className="field is-horizontal">
+              <div className="field-label is-small">
+                <label className="label">Start time</label>
+              </div>
+              <div className="field-body">
+                <div className="field">
+                  <div className="control is-expanded" key={`control_startTime`}>
+                    <input
+                      className="input is-small"
+                      type="time"
+                      name="startTime"
+                      min={modalEvent["startTime"]}
+                      step={timeRange * 60}
+                      ref={startRef}
+                      value={"08:00"}
+                      onChange={e => handleChange(e)}
+                    ></input>
+                  </div>
+                </div>
+              </div>
+            </div>
           </section>
           <footer className="modal-card-foot">
             <button className="button is-success" onClick={acceptModal}>Yes</button>

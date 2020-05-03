@@ -1,30 +1,27 @@
 import React, { useState, useEffect, useContext } from 'react'
-import { CalendarContext } from '../Calendar/Calendar';
+import { CalendarContext } from '../../contexts/CalendarContext';
 import Column from '../Column/Column';
 import { v4 as uuid } from 'uuid';
 
-function Grid() {
-  const { week } = useContext(CalendarContext);
-  const [days, setdays] = useState([]);
-  let dayBlock = [];
+function Grid(props) {
+  const { dayViewDay, setdayViewDay } = useContext(CalendarContext);
+  const { week } = props;
 
-  useEffect(() => {
-    for (let day in week) {
-      dayBlock = [...dayBlock, week[day]]
-    };
-    setdays(dayBlock)
-  }, [week]);
-
+  // console.log(week);
+  // console.log(dayViewDay);
+  // console.log(week[0]);
+  // console.log(week[1].includes(dayViewDay));
   return (
     <div className='calendar-grid'>
-      {days.map((day) => {
-        return (
-          <Column
-            day={day}
-            key={uuid()}
-          />
-        )
-      })}
+      {week
+        .map((day) => {
+          return (
+            <Column
+              day={day}
+              key={uuid()}
+            />
+          )
+        })}
     </div>
   )
 }

@@ -1,9 +1,9 @@
-import React, { useState, useContext } from 'react';
-import { CalendarContext } from '../Calendar/Calendar';
+import React, { useContext } from 'react';
 import { DateTime } from 'luxon';
 import { v4 as uuid } from 'uuid';
-import Event from '../Event/Event';
 import { UserContext } from '../../contexts/UserContext';
+import { CalendarContext } from '../../contexts/CalendarContext';
+import Event from '../Event/Event';
 
 function Column(props) {
   const { columnHeight, events, setevents, handleCreate, handleEdit } = useContext(CalendarContext);
@@ -24,7 +24,7 @@ function Column(props) {
         let control = time.includes(':') ? true : false;
         return (
           <div
-            key={time}
+            key={control ? `${time}${uuid()}` : time}
             id={time}
             className={control ? 'calendar-time__control' : 'calendar-time'}
             style={{ 'height': `${columnHeight}px` }}

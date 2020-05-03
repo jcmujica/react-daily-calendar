@@ -1,208 +1,143 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useMemo } from 'react';
 import { DateTime, Duration } from 'luxon';
 import Modal from '../Modal/Modal';
 import Grid from '../Grid/Grid';
-import { UserContext } from '../../contexts/UserContext';
+import { CalendarContext } from '../../contexts/CalendarContext';
 
-export const CalendarContext = createContext();
+
 
 function Calendar() {
+  const { timeRange, setactiveModal, activeModal, modalMode, activeWeek, setactiveWeek, viewMode, setviewMode, setdayViewDay } = useContext(CalendarContext);
   const today = DateTime.local();
-  const [week, setweek] = useState({ control: [], mon: [], tue: [], wed: [], thu: [], fri: [], sat: [], sun: [] });;
-  const [columnHeight, setcolumnHeight] = useState(30); //cellHeight
-  const [eventList, seteventList] = useState({});
-  const [timeRange, setTimeRange] = useState(15); //minutes
-  const [activeWeek, setactiveWeek] = useState(today.startOf('week'));
   const [displayMonthYear, setdisplayMonthYear] = useState(today.startOf('week').toFormat('LLLL yyyy'));
-  const [activeModal, setactiveModal] = useState(false);
-  const [activeEventId, setactiveEvent] = useState('');
-  const [modalMode, setmodalMode] = useState('');
   const [weekDays, setweekDays] = useState([]);
-  const [events, setevents] = useState([]);
-  const [newEvent, setNewEvent] = useState(false)
-
+  const [week, setweek] = useState([[], [], [], [], [], [], []]);
   const cellDuration = Duration.fromObject({ minutes: timeRange });
   const startTime = Duration.fromObject({ hours: 8 });
   const endTime = Duration.fromObject({ hours: 20 });
-  const start = DateTime.local().startOf('day').plus(startTime);
-  const end = DateTime.local().startOf('day').plus(endTime);
-  const range = end.diff(start, ['hours']).hours;
+  const start = today.startOf('day');
+  const end = today.endOf('day');
+  const range = Math.ceil(end.diff(start, ['hours']).hours);
 
-  /* CONTEXT */
 
-  const { users } = useContext(UserContext);
-  // console.log(users);
-  /* HOOKS */
-
-  useEffect(() => {
-    let weekCalculation = getTimeSlots();
-    setweek(weekCalculation);
-    setdisplayMonthYear(getWeekDisplay(activeWeek));
-    setweekDays(getWeekDays(activeWeek))
-  }, [activeWeek]);
-
-  useEffect(() => {
-    let weekCalculation = getTimeSlots();
-    setweek(weekCalculation);
-  }, [eventList]);
-
-  useEffect(() => {
-    let weekCalculation = getTimeSlots();
-    setweek(weekCalculation);
-  }, []);
-
-  /* WEEK */
-
-  const getTimeSlots = () => {
-    // console.log('get time slots')
+  useMemo(() => {
+    /* Start of week array creation */
     let dur = cellDuration;
-    let slotRange = range * 4
+    let rate = 60 / timeRange;
+    let slotRange = (range * rate);
     let timeSlot = start
     let day = activeWeek.plus(startTime)
-    let monday = day
-    let tuesday = day.plus({ days: 1 })
-    let wednesday = day.plus({ days: 2 })
-    let thursday = day.plus({ days: 3 })
-    let friday = day.plus({ days: 4 })
-    let saturday = day.plus({ days: 5 })
-    let sunday = day.plus({ days: 6 })
-    let week = { control: [], mon: [], tue: [], wed: [], thu: [], fri: [], sat: [], sun: [] }
-    for (let i = 0; i <= slotRange; i++) {
-      week = {
-        ...week,
-        control: [...week.control, timeSlot.toLocaleString(DateTime.TIME_24_SIMPLE)],
-        mon: [...week.mon, monday.toMillis().toString()],
-        tue: [...week.tue, tuesday.toMillis().toString()],
-        wed: [...week.wed, wednesday.toMillis().toString()],
-        thu: [...week.thu, thursday.toMillis().toString()],
-        fri: [...week.fri, friday.toMillis().toString()],
-        sat: [...week.sat, saturday.toMillis().toString()],
-        sun: [...week.sun, sunday.toMillis().toString()],
+    let week = [[], [], [], [], [], [], []];
+    let weekDay = '';
+    for (let k = 0; k < week.length; k++) {
+      weekDay = activeWeek.plus({ days: k });
+      for (let i = 0; i <= slotRange; i++) {
+        week[k].push(weekDay.plus(dur * i).toMillis().toString());
       }
-      timeSlot = timeSlot.plus(dur)
-      monday = monday.plus(dur)
-      tuesday = tuesday.plus(dur)
-      wednesday = wednesday.plus(dur)
-      thursday = thursday.plus(dur)
-      friday = friday.plus(dur)
-      saturday = saturday.plus(dur)
-      sunday = sunday.plus(dur)
     }
-    return week
-  };
+    let controlDay = [...week[0]];
+    controlDay = controlDay.map(day => DateTime.fromMillis(parseInt(day)).toLocaleString(DateTime.TIME_24_SIMPLE));
+    week.unshift(controlDay);
 
-  const getWeekDisplay = (activeWeek) => {
-    let firstMonth = activeWeek.startOf('week').toFormat('LLLL');
-    let secondMonth = activeWeek.endOf('week').toFormat('LLLL');
-    let firstYear = activeWeek.startOf('week').toFormat('yyyy');
-    let secondYear = activeWeek.endOf('week').toFormat('yyyy');
-    let displayReturn = '';
-    if (firstMonth !== secondMonth) {
-      if (firstYear !== secondYear) {
-        displayReturn = `${firstMonth} ${firstYear} - ${secondMonth} ${secondYear}`
-      } else {
-        displayReturn = `${firstMonth} - ${secondMonth} ${firstYear}`
-      }
-    } else {
-      displayReturn = activeWeek.startOf('week').toFormat('LLLL yyyy')
-    }
-    return displayReturn
-  };
+    /* End of week array creation */
+    /* Start of formatted day display */
 
-  const handleWeekChange = (action) => {
-    action === 'forward' ?
-      setactiveWeek(activeWeek.plus({ week: 1 })) :
-      setactiveWeek(activeWeek.minus({ week: 1 }))
-  }
-
-  const getWeekDays = (activeWeek) => {
-    let arr = []
+    let dayDisplay = []
     for (let i = 0; i < 7; i++) {
       let dayOfWeek = activeWeek.plus({ days: i })
       let dayDisplayFormat = {
         letters: dayOfWeek.toFormat('EEE'),
-        number: dayOfWeek.toFormat('dd')
+        number: dayOfWeek.toFormat('dd'),
+        full: dayOfWeek.toMillis()
       }
-      arr = [...arr, {
+      dayDisplay = [...dayDisplay, {
         formatted: dayDisplayFormat,
         date: dayOfWeek
       }]
+    };
+    /* End of formatted day display */
+
+    /* Start of Month and Year Display */
+    let firstMonth = activeWeek.startOf('week').toFormat('LLLL');
+    let secondMonth = activeWeek.endOf('week').toFormat('LLLL');
+    let firstYear = activeWeek.startOf('week').toFormat('yyyy');
+    let secondYear = activeWeek.endOf('week').toFormat('yyyy');
+    let formattedMonthYear = '';
+    if (firstMonth !== secondMonth) {
+      if (firstYear !== secondYear) {
+        formattedMonthYear = `${firstMonth} ${firstYear} / ${secondMonth} ${secondYear}`
+      } else {
+        formattedMonthYear = `${firstMonth}/${secondMonth} ${firstYear}`
+      }
+    } else {
+      formattedMonthYear = activeWeek.startOf('week').toFormat('LLLL yyyy')
     }
-    return arr
+    /* End of Month and Year Display */
+    setweek(week);
+    setweekDays(dayDisplay);
+    setdisplayMonthYear(activeWeek.startOf('week').toFormat('LLLL yyyy'));
+  }, [activeWeek]);
+
+  const handleWeekChange = (action) => {
+    if (action === 'forward') {
+      setactiveWeek(activeWeek.plus({ week: 1 }));
+    } else if (action === 'back') {
+      setactiveWeek(activeWeek.minus({ week: 1 }));
+    } else if (action === 'today') {
+      setactiveWeek(today.startOf('week'));
+    }
   }
 
-  /* DAY */
-
-  /* EVENT */
-
-  /* RENDER */
-
-  const handleCreate = (e) => {
-    setactiveEvent(e.target.id);
-    setmodalMode('create');
-    setactiveModal(true);
+  const handleDayView = (date) => {
+    setviewMode('day');
+    console.log(date.ts)
+    setdayViewDay(date.ts.toString());
   }
 
-  const handleEdit = (e) => {
-    e.preventDefault();
-    console.log(e.target.id)
-    setactiveEvent(e.target.id);
-    setmodalMode('edit');
-    setactiveModal(true);
-  }
 
   return (
     <div className='calendar'>
-      <CalendarContext.Provider value={{
-        activeModal,
-        newEvent,
-        setNewEvent,
-        cellRange: timeRange,
-        columnHeight,
-        week,
-        handleCreate,
-        handleEdit,
-        id: activeEventId,
-        events,
-        setevents,
-      }}>
-        {activeModal ?
-          <Modal
-            duration={cellDuration}
-            active={setactiveModal}
-            modalMode={modalMode} /> :
-          null}
-        <div className="calendar-weekControl">
-          <span className="calendar-weekControl__left" onClick={() => handleWeekChange('back')}>
-            <i className="fas fa-arrow-circle-left"></i>
-          </span>
-          <h1 className="calendar-weekControl__month">
+      {activeModal ?
+        <Modal
+          week={week}
+          duration={cellDuration}
+          active={setactiveModal}
+          modalMode={modalMode}
+        /> :
+        null}
+      <nav className="level calendar-weekControl">
+        <div className="level-left">
+          <button className="button is-small" onClick={() => handleWeekChange('back')}><i className="fas fa-chevron-left"></i></button>
+          <button className="button is-small" onClick={() => handleWeekChange('forward')}><i className="fas fa-chevron-right"></i></button>
+          <button className="button is-small is-primary" onClick={() => handleWeekChange('today')}><span>Today</span></button>
+          <h1 className="title">
             {displayMonthYear}
           </h1>
-          <span className="calendar-weekControl__right" onClick={() => handleWeekChange('forward')}>
-            <i className="fas fa-arrow-circle-right"></i>
-          </span>
         </div>
-        <div className='calendar-header'><div className='calendar-header__element-first'></div>
-          {weekDays.length > 0 ? weekDays.map((day) => (
-            <div key={day.formatted.letters} className='calendar-header__element'>
-              <span className='calendar-letters'>
-                {day.formatted.letters}
-              </span>
-              <span className={
+        {/* <div className="level-item" >
+          </div> */}
+      </nav>
+      <div className='calendar-header'><div className='calendar-header__element-first'></div>
+        {weekDays.length > 0 ? weekDays.map((day) => (
+          <div key={day.formatted.letters} className='calendar-header__element' onClick={() => handleDayView(day.date)}>
+            <span className='calendar-letters'>
+              {day.formatted.letters}
+            </span>
+            <span className=
+              {
                 today.hasSame(day.date, 'day') ?
                   'calendar-today' :
                   'calendar-notToday'
               }>
-                {day.formatted.number}
-              </span>
-            </div>
-          )) : null}
-        </div>
-        <Grid
-          cellRange={timeRange}
-        />
-      </CalendarContext.Provider>
+              {day.formatted.number}
+            </span>
+          </div>
+        )) : null}
+      </div>
+      <Grid
+        cellRange={timeRange}
+        week={week}
+      />
     </div>
   )
 }

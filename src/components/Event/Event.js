@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react'
 import { Rnd } from 'react-rnd'
-import { CalendarContext } from '../Calendar/Calendar';
 import { UserContext } from '../../contexts/UserContext';
+import { CalendarContext } from '../../contexts/CalendarContext';
 
 function Event({ event, day }) {
   const { columnHeight, events, setevents, handleEdit, activeModal, newEvent, setNewEvent } = useContext(CalendarContext);
@@ -22,13 +22,6 @@ function Event({ event, day }) {
     let sortByWidth;
     let baseWidth;
     let updWidths = [];
-
-    /* 
-    
-    try to filter the events that get into get collisions to the filtered ones 
-    
-    */
-
     let filteredEvents = events.filter((event) => (displayUsers.includes(event.owner)));
     let zIndex = 0;
     setzIndexState(zIndex);
@@ -93,26 +86,54 @@ function Event({ event, day }) {
       updEvents[index].startTime = newStartTime;
     } else if (dir === 'bottom') {
       newEndTime = day[day.indexOf(updEvents[index].endTime) + (delta.height / columnHeight)];
-      updEvents[index].endTime = newEndTime;
+      if (newEndTime) {
+        updEvents[index].endTime = newEndTime;
+      } else {
+        newEndTime = day[day.indexOf(updEvents[index].endTime) + (delta.height / columnHeight) - 1];
+        updEvents[index].height = height + delta.height - columnHeight;
+        updEvents[index].endTime = newEndTime;
+      }
     };
     updEvents[index].seq = getSequence(newStartTime, newEndTime, day);
+    console.log(updEvents[index].seq)
     updWidths = getCollisions(updEvents, day)
     setevents([
       ...updWidths,
     ]);
   };
 
-  const handleDragStop = (e, data, id) => {
+  const handleDragStop = (data, id, height) => {
     let offset = 0;
-    let section = data.y / columnHeight;
-    let int = parseInt(section);
-    let dec = (section - int) * 100;
+    console.log('height', height)
+    let eventTop = data.y / columnHeight;
+    console.log('section', eventTop)
+    let eventBottom = (data.y + height) / columnHeight;
+    console.log('eventBottom', eventBottom);
+    console.log('day length', day.length);
+    let int = parseInt(eventTop);
+    let dec = (eventTop - int) * 100;
     let updWidths = [];
-    if (dec < 50) {
-      offset = columnHeight * int;
+    console.log('dec', dec);
+
+
+    if (eventBottom > (day.length - 1)) {
+      if (dec === 0) {
+        console.log('<50')
+        offset = columnHeight * (int - 1);
+      } else if (dec < 50) {
+        console.log('>50')
+        offset = columnHeight * (int);
+      } else {
+        offset = columnHeight * (int);
+      }
     } else {
-      offset = columnHeight * (int + 1);
+      if (dec < 50) {
+        offset = columnHeight * int;
+      } else {
+        offset = columnHeight * (int + 1);
+      }
     }
+
     let updEvents = [...events];
     let index = updEvents.findIndex(obj => obj.id === id);
     let arrayRange = day.indexOf(updEvents[index].endTime) - day.indexOf(updEvents[index].startTime);
@@ -182,7 +203,7 @@ function Event({ event, day }) {
         }}
         onContextMenu={(e) => handleEdit(e)}
         onResizeStop={(e, dir, ref, delta) => handleResizeStop(e, dir, ref, delta, event.id, event.height)}
-        onDragStop={(e, data) => handleDragStop(e, data, event.id, event.yOffset, events)}
+        onDragStop={(e, data) => handleDragStop(data, event.id, event.height)}
 
       >
         <span>{event.name}</span>

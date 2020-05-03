@@ -1,5 +1,7 @@
-import React, { useContext } from 'react'
-import { UserContext } from '../../contexts/UserContext'
+import React, { useContext } from 'react';
+import { UserContext } from '../../contexts/UserContext';
+import BulmaCalendar from '../BulmaCalendar/BulmaCalendar';
+
 
 function Sidebar() {
   const { users, displayUsers, setdisplayUsers, currentUser, setcurrentUser, usersChanged, setusersChanged } = useContext(UserContext);
@@ -25,34 +27,49 @@ function Sidebar() {
 
   return (
     <div className='calendar-sidebar'>
-      <div className="field">
-        <label className="label">Current User</label>
-        <div className="select">
-          <select onChange={(e) => handleUserChange(e)}>
-            {users.map((user) => (
-              <option
-                id={user.id}
-                key={user.id}
-                selected={currentUser === user.id ? true : false}
-                style={{color: user.settings.color}}
-              >{user.name}
-              </option>
-            ))}
-          </select>
+      <BulmaCalendar />
+      <div className="calendar-sidebar__control">
+        <div className="field">
+          <label className="label">Current User</label>
+          <div className="select">
+            <select onChange={(e) => handleUserChange(e)}>
+              {users.map((user) => (
+                <option
+                  id={user.id}
+                  key={user.id}
+                  selected={currentUser === user.id ? true : false}
+                >{user.name}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
-      </div>
-      {
-        users.map((user) => {
-          // console.log(user.id);
-          return (<label className="checkbox" key={`label_${user.id}`}>
-            <input type="checkbox" className="chk-input" id={user.id} key={user.id} onChange={handleCheck} checked={displayUsers.includes(user.id)} />
-            {user.name}
-          </label>
-          )
-        })
-      }
-      <p className="help">Edit events by using right-click</p>
-    </div >
+        {
+          users.map((user) => {
+            // console.log(user.id);
+            return (
+              <label
+                className="checkbox"
+                key={`label_${user.id}`}
+                style={{ color: user.settings.color }}
+              >
+                <input
+                  type="checkbox"
+                  className="chk-input"
+                  id={user.id}
+                  key={user.id}
+                  onChange={handleCheck}
+                  checked={displayUsers.includes(user.id)} />
+                {user.name}
+              </label>
+
+            )
+          })
+        }
+        <p className="help">Edit events by using right-click</p>
+      </div >
+    </div>
+
   )
 }
 
