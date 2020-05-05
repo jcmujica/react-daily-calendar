@@ -4,51 +4,54 @@ import { DateTime } from 'luxon';
 export const CalendarContext = createContext();
 function CalendarContextProvider(props) {
 
-  const [activeModal, setactiveModal] = useState(false);
+  const [activeModal, setActiveModal] = useState(false);
   const [modalMode, setmodalMode] = useState('');
   const [newEvent, setNewEvent] = useState(false);
   const [timeRange, setTimeRange] = useState(15); //minutes
-  const [columnHeight, setcolumnHeight] = useState(30); //cellHeight
-  const [activeWeek, setactiveWeek] = useState(DateTime.local().startOf('week'));
+  const [columnHeight, setColumnHeight] = useState(30); //cellHeight
+  const [centerStartTime, setCenterStartTime] = useState(8);
+  const [centerEndTime, setCenterEndTime] = useState(18);
+  const [activeWeek, setActiveWeek] = useState(DateTime.local().startOf('week'));
   const [activeEventId, setactiveEvent] = useState('');
-  const [events, setevents] = useState([]);
+  const [events, setEvents] = useState([]);
   const [viewMode, setviewMode] = useState('week');
-  const [dayViewDay, setdayViewDay] = useState('');
+  const [dayViewDay, setDayViewDay] = useState('');
 
   const handleCreate = (e) => {
-    console.log(e.target.id)
     setactiveEvent(e.target.id);
     setmodalMode('create');
-    setactiveModal(true);
+    setActiveModal(true);
   };
 
   const handleEdit = (e) => {
     e.preventDefault();
     setactiveEvent(e.target.id);
     setmodalMode('edit');
-    setactiveModal(true);
+    setActiveModal(true);
   };
 
   return (
     <CalendarContext.Provider value={{
+      activeEventId,
       activeModal,
-      setactiveModal,
-      newEvent,
-      setNewEvent,
-      timeRange,
+      activeWeek,
+      centerEndTime,
+      centerStartTime,
       columnHeight,
+      dayViewDay,
+      events,
       handleCreate,
       handleEdit,
-      id: activeEventId,
-      events,
-      setevents,
+      newEvent,
       modalMode,
-      activeWeek,
-      setactiveWeek,
-      viewMode,
+      setactiveModal: setActiveModal,
+      setactiveWeek: setActiveWeek,
+      setdayViewDay: setDayViewDay,
+      setevents: setEvents,
+      setNewEvent,
       setviewMode,
-      dayViewDay,
-      setdayViewDay
+      timeRange,
+      viewMode,
     }}>
       {props.children}
     </CalendarContext.Provider>

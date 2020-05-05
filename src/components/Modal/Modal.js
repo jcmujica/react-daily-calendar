@@ -3,17 +3,18 @@ import { DateTime } from 'luxon';
 import { CalendarContext } from '../../contexts/CalendarContext';
 import { v4 as uuid } from 'uuid';
 import { UserContext } from '../../contexts/UserContext';
-import bulmaCalendar from '../../../node_modules/bulma-calendar/dist/js/bulma-calendar';
 
 function Modal(props) {
   const { duration, active, modalMode, week } = props;
-  const { columnHeight, events, setevents, id, setNewEvent, timeRange } = useContext(CalendarContext);
+  const { columnHeight, events, setevents, activeEventId, setNewEvent, timeRange } = useContext(CalendarContext);
   const { users, displayUsers, setdisplayUsers, currentUser, setcurrentUser } = useContext(UserContext);
-  const startRef = useRef();
-  const endRef = useRef();
 
-  const [modalEvent, setmodalEvent] = useState({});
-  const [deleteStage, setdeleteStage] = useState('');
+  const [startTime, setStartTime] = useState('')
+  const [endTime, setEndTime] = useState('')
+  const [modalEvent, setModalEvent] = useState({});
+  const [startOfDay, setStartOfDay] = useState();
+  const [deleteStage, setDeleteStage] = useState('');
+  const [day, setDay] = useState([]);
   const [modalInfo, setModalInfo] = useState({
     title: '',
     fields: [
@@ -23,24 +24,35 @@ function Modal(props) {
   });
 
   useEffect(() => {
+
+    let startTimeRef = activeEventId
+    if (modalMode === 'edit') {
+      startTimeRef = events.filter((event) => event.id === activeEventId)[0].startTime;
+    }
     let dayArray = [];
     for (let day in week) {
       dayArray = [...dayArray, week[day]]
     };
-    let day = dayArray.filter((day) => day.includes(id))
+    let day = dayArray.filter((day) => day.includes(startTimeRef))
     if (day.length > 0) {
       day = day[0];
     }
 
+
+    setDay(day);
+
     if (modalMode === 'create') {
-      let startTime = id;
-      let endTime = day[day.indexOf(id) + 1]; //+2 ??
+      let startTime = activeEventId;
+      setStartTime(activeEventId)
+      setStartOfDay(DateTime.fromMillis(parseInt(startTime)).startOf("day"));
+      let endTime = day[day.indexOf(activeEventId) + 1];
+      setEndTime(endTime)
 
       setModalInfo({
         ...modalInfo,
         title: 'Please enter the required information',
       });
-      setmodalEvent({
+      setModalEvent({
         id: uuid(),
         startTime: startTime,
         endTime: endTime,
@@ -53,7 +65,7 @@ function Modal(props) {
         color: currentUser.color,
         width: 90,
         seq: [startTime, endTime],
-        yOffset: day.indexOf(id) * columnHeight,
+        yOffset: day.indexOf(startTime) * columnHeight,
         xOffset: 0,
         zIndex: 0
       });
@@ -62,9 +74,12 @@ function Modal(props) {
         ...modalInfo,
         title: 'Please edit the required information',
       });
-      console.log(events.findIndex((el) => el.id === id))
-      setmodalEvent({
-        ...events[events.findIndex((el) => el.id === id)]
+      let editEvent = { ...events[events.findIndex((el) => el.id === activeEventId)] }
+      setStartTime(editEvent.startTime);
+      setStartOfDay(DateTime.fromMillis(parseInt(editEvent.startTime)).startOf("day"));
+      setEndTime(editEvent.endTime);
+      setModalEvent({
+        ...events[events.findIndex((el) => el.id === activeEventId)]
       });
     } else if (modalMode === 'delete') {
       setModalInfo({
@@ -74,46 +89,55 @@ function Modal(props) {
     };
   }, []);
 
-  useEffect(() => {
-    const timeInputs = bulmaCalendar.attach('[type="time"]', {
-      showClearButton: false,
-      dataIsRange: false,
-      showHeader: false
-    });
-    timeInputs.forEach((timeInput) => {
-      timeInput.on('time:selected', (time) => {
-      });
-    });
-    const element = startRef.current;
-    console.log(element)
-    if (element) {
-      element.bulmaCalendar.on('select', (datepicker) => {
-        console.log(datepicker.data.value())
-      });
+  const preFormatTime = (value) => {
+    let format = DateTime.fromMillis(parseInt(value)).toLocaleString(DateTime.TIME_24_SIMPLE).split(":");
+    let first = format[0];
+    let second = format[1];
+    if (format[0].length < 2) {
+      first = `0${first}`;
     }
-
-  }, [])
+    return `${first}:${second}`
+  };
 
   const handleChange = (e) => {
     let { name, value, type } = e.target;
-    console.log(type)
-    setmodalEvent({
+
+    setModalEvent({
       ...modalEvent,
       [name]: value
     });
-    // console.log(modalEvent);
+
   };
 
   const acceptModal = () => {
-    let index = events.findIndex(obj => obj.id === id);
+    let index = events.findIndex(obj => obj.id === activeEventId);
     if (modalMode === 'create') {
+      let sequence = getSequence(startTime.toString(), endTime.toString(), day);
+      let height = getHeight(sequence);
+      let yOffset = getYOffset(startTime.toString(), day);
+      let updModalEvent = {
+        ...modalEvent,
+        seq: sequence,
+        height: height,
+        yOffset: yOffset,
+      }
       setevents([
         ...events,
-        modalEvent
+        updModalEvent
       ]);
     } else {
+      let editEvent = modalEvent;
+      let sequence = getSequence(startTime.toString(), endTime.toString(), day);
+      let height = getHeight(sequence);
+      let yOffset = getYOffset(startTime.toString(), day);
       let updEvents = [...events];
-      updEvents[index] = modalEvent;
+      editEvent.startTime = startTime.toString();
+      editEvent.endTime = endTime.toString();
+      editEvent.seq = sequence;
+      editEvent.height = height;
+      editEvent.yOffset = yOffset;
+
+      updEvents[index] = editEvent;
       setevents([
         ...updEvents
       ]);
@@ -122,27 +146,61 @@ function Modal(props) {
     active(false);
   };
 
+  const getSequence = (start, end, array) => {
+    return array.slice(array.indexOf(start), array.indexOf(end) + 1)
+  };
+
+  const getHeight = (sequence) => {
+    return (sequence.length - 1) * columnHeight;
+  };
+
+  const getYOffset = (start, array) => {
+    return array.indexOf(start) * columnHeight;
+  };
+
   const cancelModal = () => {
     active(false);
-    setdeleteStage('');
+    setDeleteStage('');
   };
 
   const deleteEvent = () => {
     if (!deleteStage) {
-      setdeleteStage('confirm');
+      setDeleteStage('confirm');
     } else {
-      let filteredArray = events.filter((event) => event.id !== id);
+      let filteredArray = events.filter((event) => event.id !== activeEventId);
       setevents([
         ...filteredArray
       ]);
-      setdeleteStage('');
+      setDeleteStage('');
       active(false);
     }
   };
 
-  const handleTime = (e) => {
-    console.log(e)
-    return "08:00"
+  const handleTimeChange = (e) => {
+    let field = e.target;
+    let newStartTime;
+    let newEndTime;
+    if (field.value) {
+      if (field.id === "startTime") {
+        newStartTime = DateTime.fromMillis(timeToDateTime(field.value));
+        newEndTime = DateTime.fromMillis(parseInt(endTime));
+        if (newStartTime >= newEndTime) {
+        } else {
+          setStartTime(timeToDateTime(field.value));
+        }
+      } else if (field.id === "endTime") {
+        newEndTime = DateTime.fromMillis(timeToDateTime(field.value));
+        newStartTime = DateTime.fromMillis(parseInt(startTime));
+        if (newEndTime <= newStartTime) {
+        } else {
+          setEndTime(timeToDateTime(field.value));
+        }
+      }
+    }
+  };
+
+  const timeToDateTime = (time) => {
+    return startOfDay.plus({ hours: parseInt(time.split(':')[0]), minutes: parseInt(time.split(':')[1]) }).ts;
   };
 
   return (
@@ -177,7 +235,8 @@ function Modal(props) {
                   </div>
                 </div>
               )) : null}
-            <div key={"startTime"} className="field is-horizontal">
+
+            <div key="startTime" className="field is-horizontal">
               <div className="field-label is-small">
                 <label className="label">Start time</label>
               </div>
@@ -185,23 +244,40 @@ function Modal(props) {
                 <div className="field">
                   <div className="control is-expanded" key={`control_startTime`}>
                     <input
-                      className="input is-small"
+                      value={preFormatTime(startTime)}
+                      id="startTime"
                       type="time"
-                      name="startTime"
-                      min={modalEvent["startTime"]}
-                      step={timeRange * 60}
-                      ref={startRef}
-                      value={"08:00"}
-                      onChange={e => handleChange(e)}
-                    ></input>
+                      step={15 * 60}
+                      onChange={handleTimeChange}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div key="endTime" className="field is-horizontal">
+              <div className="field-label is-small">
+                <label className="label">End time</label>
+              </div>
+              <div className="field-body">
+                <div className="field">
+                  <div className="control is-expanded" key={`control_endTime`}>
+                    <input
+                      value={preFormatTime(endTime)}
+                      id="endTime"
+                      type="time"
+                      step={15 * 60}
+                      onChange={handleTimeChange}
+                    />
                   </div>
                 </div>
               </div>
             </div>
           </section>
           <footer className="modal-card-foot">
-            <button className="button is-success" onClick={acceptModal}>Yes</button>
-            <button className="button" onClick={cancelModal}>No</button>
+            <button className="button is-success" onClick={acceptModal}>
+              Submit
+            </button>
+            <button className="button" onClick={cancelModal}>Cancel</button>
             {modalMode === 'edit' ? <button className="button" onClick={deleteEvent}>
               {deleteStage === 'confirm' ? 'Confirm' : 'Delete'}
             </button> : null}

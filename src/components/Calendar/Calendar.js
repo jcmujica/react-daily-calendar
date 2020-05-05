@@ -25,18 +25,20 @@ function Calendar() {
     let dur = cellDuration;
     let rate = 60 / timeRange;
     let slotRange = (range * rate);
-    let timeSlot = start
-    let day = activeWeek.plus(startTime)
     let week = [[], [], [], [], [], [], []];
     let weekDay = '';
     for (let k = 0; k < week.length; k++) {
       weekDay = activeWeek.plus({ days: k });
       for (let i = 0; i <= slotRange; i++) {
-        week[k].push(weekDay.plus(dur * i).toMillis().toString());
+        if (i !== slotRange) {
+          week[k].push(weekDay.plus(dur * i).toMillis().toString());
+        } else {
+          week[k].push(weekDay.plus((dur - 1) * i).toMillis().toString());
+        }
       }
     }
     let controlDay = [...week[0]];
-    controlDay = controlDay.map(day => DateTime.fromMillis(parseInt(day)).toLocaleString(DateTime.TIME_24_SIMPLE));
+    controlDay = controlDay.map(day => DateTime.fromMillis(parseInt(day)).toLocaleString(DateTime.TIME_SIMPLE));
     week.unshift(controlDay);
 
     /* End of week array creation */
@@ -47,8 +49,7 @@ function Calendar() {
       let dayOfWeek = activeWeek.plus({ days: i })
       let dayDisplayFormat = {
         letters: dayOfWeek.toFormat('EEE'),
-        number: dayOfWeek.toFormat('dd'),
-        full: dayOfWeek.toMillis()
+        number: dayOfWeek.toFormat('dd')
       }
       dayDisplay = [...dayDisplay, {
         formatted: dayDisplayFormat,
@@ -93,7 +94,6 @@ function Calendar() {
     console.log(date.ts)
     setdayViewDay(date.ts.toString());
   }
-
 
   return (
     <div className='calendar'>

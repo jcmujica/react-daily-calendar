@@ -30,7 +30,7 @@ function Sidebar() {
       <BulmaCalendar />
       <div className="calendar-sidebar__control">
         <div className="field">
-          <label className="label">Current User</label>
+          <label className="label">Switch User</label>
           <div className="select">
             <select onChange={(e) => handleUserChange(e)}>
               {users.map((user) => (
@@ -44,6 +44,7 @@ function Sidebar() {
             </select>
           </div>
         </div>
+        <label className="label">Display User Calendar</label>
         {
           users.map((user) => {
             // console.log(user.id);

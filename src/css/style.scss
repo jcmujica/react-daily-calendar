@@ -53,10 +53,16 @@
       width: 5.5%;
     }
   }
+  &-ooRange {
+    background-color: #dbdbdb70;
+  }
   &-time {
     border: 1px solid #dbdbdb;
-    border-width: 1px 1px 0 0;
-    padding-right: 5px;
+    border-width: 0 1px 0 0;
+    &:nth-child(odd) {
+      border-width: 1px 1px 0 0;
+      padding-right: 5px;
+    }
     &__control {
       border: 1px solid #dbdbdb;
       border-width: 1px 1px 0 0;
@@ -119,7 +125,7 @@
   }
   &-header {
     display: flex;
-    // margin-bottom: 10px;
+    margin-bottom: 10px;
     width: 100%;
     overflow-y: scroll;
     &::-webkit-scrollbar {
@@ -148,6 +154,9 @@
     color: #70757a;
     font-size: 0.7rem;
     font-weight: 500;
+  }
+  input[type="time"]::-webkit-clear-button {
+    display: none;
   }
 }
 

@@ -5,11 +5,13 @@ import Calendar from './components/Calendar/Calendar';
 import UserContextProvider from './contexts/UserContext';
 import CalendarContextProvider from './contexts/CalendarContext';
 import Sidebar from './components/Sidebar/Sidebar';
+import LogRocket from 'logrocket';
 
 // if (process.env.NODE_ENV !== 'production') {
 //   const { whyDidYouUpdate } = require('why-did-you-update')
 //   whyDidYouUpdate(React)
 // }
+// LogRocket.init('0oolaq/calendar');
 
 function App() {
   return (
