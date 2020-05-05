@@ -1,11 +1,20 @@
+.columns {
+  height: 100vh;
+}
 .calendar {
   &-modal {
     height: 90vh;
   }
+  // #startTime {
+  //   background-color: red;
+  // }
   // min-width: 800px;
   overflow-x: auto;
   &-leftColumn {
     padding-right: 0;
+  }
+  &-eventTime {
+    font-size: 0.6rem;
   }
   &-rightColumn {
     padding-left: 0;

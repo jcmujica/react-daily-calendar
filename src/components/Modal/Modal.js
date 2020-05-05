@@ -24,7 +24,6 @@ function Modal(props) {
   });
 
   useEffect(() => {
-
     let startTimeRef = activeEventId
     if (modalMode === 'edit') {
       startTimeRef = events.filter((event) => event.id === activeEventId)[0].startTime;
@@ -37,8 +36,6 @@ function Modal(props) {
     if (day.length > 0) {
       day = day[0];
     }
-
-
     setDay(day);
 
     if (modalMode === 'create') {
@@ -50,7 +47,7 @@ function Modal(props) {
 
       setModalInfo({
         ...modalInfo,
-        title: 'Please enter the required information',
+        title: 'Create an event',
       });
       setModalEvent({
         id: uuid(),
@@ -72,7 +69,7 @@ function Modal(props) {
     } else if (modalMode === 'edit') {
       setModalInfo({
         ...modalInfo,
-        title: 'Please edit the required information',
+        title: 'Edit this event',
       });
       let editEvent = { ...events[events.findIndex((el) => el.id === activeEventId)] }
       setStartTime(editEvent.startTime);
@@ -101,7 +98,6 @@ function Modal(props) {
 
   const handleChange = (e) => {
     let { name, value, type } = e.target;
-
     setModalEvent({
       ...modalEvent,
       [name]: value
@@ -229,6 +225,7 @@ function Modal(props) {
                           name={field.name}
                           value={modalEvent[field.name] || ''}
                           onChange={e => handleChange(e)}
+                          required
                         ></input>
                       </div>
                     </div>
@@ -245,9 +242,10 @@ function Modal(props) {
                   <div className="control is-expanded" key={`control_startTime`}>
                     <input
                       value={preFormatTime(startTime)}
+                      className="input is-small"
                       id="startTime"
                       type="time"
-                      step={15 * 60}
+                      step={timeRange * 60}
                       onChange={handleTimeChange}
                     />
                   </div>
@@ -263,9 +261,10 @@ function Modal(props) {
                   <div className="control is-expanded" key={`control_endTime`}>
                     <input
                       value={preFormatTime(endTime)}
+                      className="input is-small"
                       id="endTime"
                       type="time"
-                      step={15 * 60}
+                      step={timeRange * 60}
                       onChange={handleTimeChange}
                     />
                   </div>
@@ -278,7 +277,7 @@ function Modal(props) {
               Submit
             </button>
             <button className="button" onClick={cancelModal}>Cancel</button>
-            {modalMode === 'edit' ? <button className="button" onClick={deleteEvent}>
+            {modalMode === 'edit' ? <button className="button" style={deleteStage === 'confirm' ? { 'backgroundColor': '#C53030', 'color': 'white' } : null} onClick={deleteEvent}>
               {deleteStage === 'confirm' ? 'Confirm' : 'Delete'}
             </button> : null}
           </footer>

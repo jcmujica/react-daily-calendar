@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react'
 import { Rnd } from 'react-rnd'
 import { UserContext } from '../../contexts/UserContext';
 import { CalendarContext } from '../../contexts/CalendarContext';
+import { DateTime } from 'luxon';
 
 function Event({ event, day }) {
   const { columnHeight, events, setevents, handleEdit, activeModal, newEvent, setNewEvent } = useContext(CalendarContext);
@@ -95,33 +96,27 @@ function Event({ event, day }) {
       }
     };
     updEvents[index].seq = getSequence(newStartTime, newEndTime, day);
-    console.log(updEvents[index].seq)
     updWidths = getCollisions(updEvents, day)
     setevents([
       ...updWidths,
     ]);
   };
 
+  const formatTime = (time) => {
+    return DateTime.fromMillis(parseInt(time)).toFormat("h':'mm a")
+  };
+
   const handleDragStop = (data, id, height) => {
     let offset = 0;
-    console.log('height', height)
     let eventTop = data.y / columnHeight;
-    console.log('section', eventTop)
     let eventBottom = (data.y + height) / columnHeight;
-    console.log('eventBottom', eventBottom);
-    console.log('day length', day.length);
     let int = parseInt(eventTop);
     let dec = (eventTop - int) * 100;
     let updWidths = [];
-    console.log('dec', dec);
-
-
     if (eventBottom > (day.length - 1)) {
       if (dec === 0) {
-        console.log('<50')
         offset = columnHeight * (int - 1);
       } else if (dec < 50) {
-        console.log('>50')
         offset = columnHeight * (int);
       } else {
         offset = columnHeight * (int);
@@ -206,7 +201,11 @@ function Event({ event, day }) {
         onDragStop={(e, data) => handleDragStop(data, event.id, event.height)}
 
       >
-        <span>{event.name}</span>
+        <span>{event.name}</span><br />
+        <div className="calendar-eventTime">
+          <span>{formatTime(event.startTime)} - </span>
+          <span>{formatTime(event.endTime)}</span>
+        </div>
       </Rnd>
     </>
   )

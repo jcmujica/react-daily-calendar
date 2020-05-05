@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useEffect, useState } from 'react';
+import React, { useContext, useRef, useEffect, useState, useMemo } from 'react';
 import { DateTime } from 'luxon';
 import { v4 as uuid } from 'uuid';
 import { UserContext } from '../../contexts/UserContext';
@@ -26,6 +26,11 @@ function Column(props) {
     setStartIndex(centerStartTime * (60 / timeRange));
     setEndIndex(centerEndTime * (60 / timeRange))
   }, [scrollPosition])
+
+  useMemo(() => {
+    setStartIndex(centerStartTime * (60 / timeRange));
+    setEndIndex(centerEndTime * (60 / timeRange))
+  }, [])
 
   return (
     <div className='calendar-day'>
