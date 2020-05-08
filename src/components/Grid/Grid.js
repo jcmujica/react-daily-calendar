@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useContext } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import { CalendarContext } from '../../contexts/CalendarContext';
 import Column from '../Column/Column';
 import { v4 as uuid } from 'uuid';
@@ -8,7 +8,7 @@ function Grid(props) {
   const { week } = props;
   const [displayWeek, setDisplayWeek] = useState(week);
 
-  useMemo(() => {
+  useEffect(() => {
     let dayViewWeek = [];
     if (viewMode === 'day') {
       dayViewWeek = [...week.filter((day) => day.includes(dayViewDay))[0]];
@@ -16,7 +16,7 @@ function Grid(props) {
     } else {
       setDisplayWeek(week);
     }
-  }, [viewMode])
+  }, [viewMode, week])
 
   // console.log(week[0]);
   // console.log(week[1].includes(dayViewDay));
