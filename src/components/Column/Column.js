@@ -11,7 +11,7 @@ function Column(props) {
   const { users, displayUsers, setdisplayUsers, currentUser, setcurrentUser } = useContext(UserContext);
   const [startIndex, setStartIndex] = useState(0);
   const [endIndex, setEndIndex] = useState(0);
-  const { day } = props;
+  const { day, view } = props;
 
 
   const getDay = (a, b) => {
@@ -33,18 +33,18 @@ function Column(props) {
   }, [])
 
   return (
-    <div className='calendar-day'>
+    <div className={view === 'week' ? 'calendar-day' : 'calendar-dayFull'}>
       {day.map((time, i) => {
         let control = time.includes(':') ? true : false;
         return (
           <div
             key={control ? `${time}${uuid()}` : time}
             id={time}
-            className={`${control ? 'calendar-time__control' : 'calendar-time'} ${i < startIndex || i >= endIndex ? 'calendar-ooRange' : null}`}
-            // className={i < 9 ? 'calendar-ooRange' : null}
+            className={`${control ? 'calendar-time__control' : 'calendar-time'} ${(i < startIndex || i >= endIndex) && !control ? 'calendar-ooRange' : null}`}
             style={{ 'height': `${columnHeight}px` }}
-            onClick={control ? null : (e) => handleCreate(e)}
-            ref={i === (centerStartTime * (60 / timeRange)) ? scrollPosition : null}
+            onClick={control ? null :
+              i !== (day.length - 1) ? (e) => handleCreate(e) : null}
+            ref={i === (centerStartTime * (60 / timeRange) - 1) ? scrollPosition : null}
           >
             {control ? <span>{time}</span> : null}
           </div>

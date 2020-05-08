@@ -97,7 +97,7 @@ function Modal(props) {
   };
 
   const handleChange = (e) => {
-    let { name, value, type } = e.target;
+    let { name, value } = e.target;
     setModalEvent({
       ...modalEvent,
       [name]: value
@@ -111,6 +111,7 @@ function Modal(props) {
       let sequence = getSequence(startTime.toString(), endTime.toString(), day);
       let height = getHeight(sequence);
       let yOffset = getYOffset(startTime.toString(), day);
+
       let updModalEvent = {
         ...modalEvent,
         seq: sequence,

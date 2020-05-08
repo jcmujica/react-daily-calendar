@@ -69,6 +69,9 @@ function Sidebar() {
         }
         <p className="help">Edit events by using right-click</p>
       </div >
+      <div className="calendar-sidebar__toggle">
+        <i className="fas fa-chevron-left"></i>
+      </div>
     </div>
 
   )

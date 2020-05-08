@@ -7,14 +7,12 @@ import { CalendarContext } from '../../contexts/CalendarContext';
 
 
 function Calendar() {
-  const { timeRange, setactiveModal, activeModal, modalMode, activeWeek, setactiveWeek, viewMode, setviewMode, setdayViewDay } = useContext(CalendarContext);
+  const { timeRange, setactiveModal, activeModal, modalMode, activeWeek, setactiveWeek, viewMode, setviewMode, dayViewDay, setdayViewDay } = useContext(CalendarContext);
   const today = DateTime.local();
   const [displayMonthYear, setdisplayMonthYear] = useState(today.startOf('week').toFormat('LLLL yyyy'));
-  const [weekDays, setweekDays] = useState([]);
+  const [displayDays, setDisplayDays] = useState([]);
   const [week, setweek] = useState([[], [], [], [], [], [], []]);
   const cellDuration = Duration.fromObject({ minutes: timeRange });
-  const startTime = Duration.fromObject({ hours: 8 });
-  const endTime = Duration.fromObject({ hours: 20 });
   const start = today.startOf('day');
   const end = today.endOf('day');
   const range = Math.ceil(end.diff(start, ['hours']).hours);
@@ -75,24 +73,64 @@ function Calendar() {
     }
     /* End of Month and Year Display */
     setweek(week);
-    setweekDays(dayDisplay);
+    if (viewMode === 'week') {
+      setDisplayDays(dayDisplay);
+    }
     setdisplayMonthYear(activeWeek.startOf('week').toFormat('LLLL yyyy'));
-  }, [activeWeek]);
+  }, [activeWeek, viewMode]);
 
-  const handleWeekChange = (action) => {
-    if (action === 'forward') {
-      setactiveWeek(activeWeek.plus({ week: 1 }));
-    } else if (action === 'back') {
-      setactiveWeek(activeWeek.minus({ week: 1 }));
-    } else if (action === 'today') {
-      setactiveWeek(today.startOf('week'));
+  const handleTimeSpanChange = (action) => {
+    if (viewMode === 'week') {
+      if (action === 'forward') {
+        setactiveWeek(activeWeek.plus({ week: 1 }));
+      } else if (action === 'back') {
+        setactiveWeek(activeWeek.minus({ week: 1 }));
+      } else if (action === 'today') {
+        setactiveWeek(today.startOf('week'));
+      }
+    } else if (viewMode === 'day') {
+      let newDay = DateTime.fromMillis(parseInt(dayViewDay));
+      if (action === 'forward') {
+        newDay = newDay.plus({ day: 1 });
+        handleDayView(newDay);
+        setactiveWeek(newDay.startOf('week'));
+      } else if (action === 'back') {
+        newDay = newDay.minus({ day: 1 });
+        handleDayView(newDay);
+        setactiveWeek(newDay.startOf('week'));
+      } else if (action === 'today') {
+        handleDayView(today);
+        setactiveWeek(today.startOf('week'));
+      }
     }
   }
 
   const handleDayView = (date) => {
     setviewMode('day');
-    console.log(date.ts)
     setdayViewDay(date.ts.toString());
+  }
+
+  useEffect(() => {
+    console.log(dayViewDay)
+    if (dayViewDay) {
+      let date = DateTime.fromMillis(parseInt(dayViewDay));
+      console.log(date)
+      setDisplayDays([{
+        formatted: {
+          letters: date.toFormat('EEE'),
+          number: date.toFormat('dd')
+        },
+        date: date
+      }]);
+    }
+  }, [dayViewDay])
+
+  const handleViewChange = (e) => {
+    console.log('view mode', e.target.value)
+    setviewMode(e.target.value);
+    if (e.target.value === 'day') {
+      handleDayView(activeWeek.startOf('week'))
+    }
   }
 
   return (
@@ -107,18 +145,26 @@ function Calendar() {
         null}
       <nav className="level calendar-weekControl">
         <div className="level-left">
-          <button className="button is-small" onClick={() => handleWeekChange('back')}><i className="fas fa-chevron-left"></i></button>
-          <button className="button is-small" onClick={() => handleWeekChange('forward')}><i className="fas fa-chevron-right"></i></button>
-          <button className="button is-small is-primary" onClick={() => handleWeekChange('today')}><span>Today</span></button>
+          <button className="button is-small" onClick={() => handleTimeSpanChange('back')}><i className="fas fa-chevron-left"></i></button>
+          <button className="button is-small" onClick={() => handleTimeSpanChange('forward')}><i className="fas fa-chevron-right"></i></button>
+          <button className="button is-small is-primary" onClick={() => handleTimeSpanChange('today')}><span>Today</span></button>
           <h1 className="title">
             {displayMonthYear}
           </h1>
+        </div>
+        <div className="level-right">
+          <div className="select">
+            <select value={viewMode} onChange={(e) => handleViewChange(e)}>
+              <option value="week" >Week</option>
+              <option value="day">Day</option>
+            </select>
+          </div>
         </div>
         {/* <div className="level-item" >
           </div> */}
       </nav>
       <div className='calendar-header'><div className='calendar-header__element-first'></div>
-        {weekDays.length > 0 ? weekDays.map((day) => (
+        {displayDays.length > 0 ? displayDays.map((day) => (
           <div key={day.formatted.letters} className='calendar-header__element' onClick={() => handleDayView(day.date)}>
             <span className='calendar-letters'>
               {day.formatted.letters}

@@ -1,11 +1,11 @@
-import React, { useEffect, useContext, useRef } from 'react'
+import React, { useEffect, useContext, useRef } from 'react';
 import { DateTime } from 'luxon';
 import { CalendarContext } from '../../contexts/CalendarContext';
 import bulmaCalendar from '../../../node_modules/bulma-calendar/dist/js/bulma-calendar';
 
 function BulmaCalendar() {
   const monthCalendarRef = useRef();
-  const { setactiveWeek } = useContext(CalendarContext);
+  const { setactiveWeek, viewMode, setdayViewDay } = useContext(CalendarContext);
   useEffect(() => {
     const calendars = bulmaCalendar.attach('[type="date"]', {
       displayMode: 'inline',
@@ -21,12 +21,20 @@ function BulmaCalendar() {
     const element = monthCalendarRef.current;
     if (element) {
       element.bulmaCalendar.on('select', (datepicker) => {
-        let selected = DateTime.fromFormat(datepicker.data.value(), 'D').ts
-        setactiveWeek(DateTime.fromMillis(parseInt(selected)).startOf('week'));
+        console.log(viewMode)
+        if (viewMode === 'week') {
+          let selected = DateTime.fromFormat(datepicker.data.value(), 'D').ts;
+          setactiveWeek(DateTime.fromMillis(parseInt(selected)).startOf('week'));
+        } else if (viewMode === 'day') {
+          let selected = DateTime.fromFormat(datepicker.data.value(), 'D').ts;
+          setactiveWeek(DateTime.fromMillis(parseInt(selected)).startOf('week'));
+          console.log('bulma', DateTime.fromFormat(datepicker.data.value(), 'D').ts.toString())
+          setdayViewDay(DateTime.fromFormat(datepicker.data.value(), 'D').ts.toString());
+        }
       });
     };
 
-  }, [])
+  }, [viewMode]);
   return (
     <div className="calendar-bulmaCalendar">
       <input ref={monthCalendarRef} type="date" />
