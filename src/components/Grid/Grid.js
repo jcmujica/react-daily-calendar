@@ -11,6 +11,7 @@ function Grid(props) {
   useEffect(() => {
     let dayViewWeek = [];
     if (viewMode === 'day') {
+      console.log('week day', week)
       dayViewWeek = [...week.filter((day) => day.includes(dayViewDay))[0]];
       setDisplayWeek([week[0], dayViewWeek]);
     } else {
