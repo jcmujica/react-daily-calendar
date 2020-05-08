@@ -7,7 +7,7 @@ function Sidebar() {
   const { users, displayUsers, setdisplayUsers, currentUser, setcurrentUser, usersChanged, setusersChanged } = useContext(UserContext);
 
   const handleCheck = (e) => {
-    let userId = parseInt(e.target.id)
+    let userId = parseInt(e.target.id);
     if (displayUsers.includes(userId)) {
       let copyDispUsers = [...displayUsers];
       copyDispUsers.splice(copyDispUsers.indexOf(userId), 1);
@@ -21,7 +21,7 @@ function Sidebar() {
   const handleUserChange = (e) => {
     let newUser = users.filter((user) => user.name === e.target.value);
     setusersChanged(true);
-    setcurrentUser(newUser[0].id)
+    setcurrentUser(newUser[0].id);
     setdisplayUsers([newUser[0].id]);
   }
 
@@ -32,12 +32,12 @@ function Sidebar() {
         <div className="field">
           <label className="label">Switch User</label>
           <div className="select">
-            <select onChange={(e) => handleUserChange(e)}>
+            <select onChange={(e) => handleUserChange(e)} value={currentUser}>
               {users.map((user) => (
                 <option
                   id={user.id}
                   key={user.id}
-                  selected={currentUser === user.id ? true : false}
+                  value={user.id}
                 >{user.name}
                 </option>
               ))}
@@ -46,26 +46,23 @@ function Sidebar() {
         </div>
         <label className="label">Display User Calendar</label>
         {
-          users.map((user) => {
-            // console.log(user.id);
-            return (
-              <label
-                className="checkbox"
-                key={`label_${user.id}`}
-                style={{ color: user.settings.color }}
-              >
-                <input
-                  type="checkbox"
-                  className="chk-input"
-                  id={user.id}
-                  key={user.id}
-                  onChange={handleCheck}
-                  checked={displayUsers.includes(user.id)} />
-                {user.name}
-              </label>
+          users.map((user) => (
+            <label
+              className="checkbox"
+              key={`label_${user.id}`}
+              style={{ color: user.settings.color }}
+            >
+              <input
+                type="checkbox"
+                className="chk-input"
+                id={user.id}
+                key={user.id}
+                onChange={handleCheck}
+                checked={displayUsers.includes(user.id)} />
+              {user.name}
+            </label>
 
-            )
-          })
+          ))
         }
         <p className="help">Edit events by using right-click</p>
       </div >
@@ -77,4 +74,4 @@ function Sidebar() {
   )
 }
 
-export default Sidebar
+export default Sidebar;

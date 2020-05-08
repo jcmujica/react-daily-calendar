@@ -7,8 +7,9 @@ import Event from '../Event/Event';
 
 function Column(props) {
   const scrollPosition = useRef();
-  const { columnHeight, events, setevents, handleCreate, centerStartTime, centerEndTime, handleEdit, timeRange } = useContext(CalendarContext);
-  const { users, displayUsers, setdisplayUsers, currentUser, setcurrentUser } = useContext(UserContext);
+  const scrolled = useRef(false);
+  const { columnHeight, events, handleCreate, centerStartTime, centerEndTime, timeRange } = useContext(CalendarContext);
+  const { displayUsers } = useContext(UserContext);
   const [startIndex, setStartIndex] = useState(0);
   const [endIndex, setEndIndex] = useState(0);
   const { day, view } = props;
@@ -22,14 +23,15 @@ function Column(props) {
   };
 
   useEffect(() => {
-    scrollPosition.current.scrollIntoView();
-    setStartIndex(centerStartTime * (60 / timeRange));
-    setEndIndex(centerEndTime * (60 / timeRange))
+    if (!scrolled.current) {
+      scrolled.current = true;
+      scrollPosition.current.scrollIntoView();
+    }
   }, [scrollPosition])
 
   useMemo(() => {
     setStartIndex(centerStartTime * (60 / timeRange));
-    setEndIndex(centerEndTime * (60 / timeRange))
+    setEndIndex(centerEndTime * (60 / timeRange));
   }, [])
 
   return (
@@ -40,7 +42,7 @@ function Column(props) {
           <div
             key={control ? `${time}${uuid()}` : time}
             id={time}
-            className={`${control ? 'calendar-time__control' : 'calendar-time'} ${(i < startIndex || i >= endIndex) && !control ? 'calendar-ooRange' : null}`}
+            className={`${control ? 'calendar-time__control' : 'calendar-time'} ${(i < startIndex || i >= endIndex) && !control ? 'calendar-ooRange' : '  '}`}
             style={{ 'height': `${columnHeight}px` }}
             onClick={control ? null :
               i !== (day.length - 1) ? (e) => handleCreate(e) : null}

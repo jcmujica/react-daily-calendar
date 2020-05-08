@@ -4,25 +4,22 @@ import Column from '../Column/Column';
 import { v4 as uuid } from 'uuid';
 
 function Grid(props) {
-  const { dayViewDay, setdayViewDay, viewMode } = useContext(CalendarContext);
+  const { dayViewDay, viewMode } = useContext(CalendarContext);
   const { week } = props;
   const [displayWeek, setDisplayWeek] = useState(week);
 
   useEffect(() => {
     let dayViewWeek = [];
     if (viewMode === 'day') {
-      console.log('week day', week)
-      dayViewWeek = [...week.filter((day) => day.includes(dayViewDay))[0]];
-      setDisplayWeek([week[0], dayViewWeek]);
+      dayViewWeek = week.filter((day) => day.includes(dayViewDay))[0];
+      if (dayViewWeek) {
+        setDisplayWeek([week[0], dayViewWeek]);
+      }
     } else {
       setDisplayWeek(week);
     }
-  }, [viewMode, week])
+  }, [viewMode, week, dayViewDay])
 
-  // console.log(week[0]);
-  // console.log(week[1].includes(dayViewDay));
-
-  console.log(displayWeek)
   return (
     <div className='calendar-grid'>
       {displayWeek

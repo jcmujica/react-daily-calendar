@@ -111,10 +111,8 @@ function Calendar() {
   }
 
   useEffect(() => {
-    console.log(dayViewDay)
     if (dayViewDay) {
       let date = DateTime.fromMillis(parseInt(dayViewDay));
-      console.log(date)
       setDisplayDays([{
         formatted: {
           letters: date.toFormat('EEE'),
@@ -123,13 +121,12 @@ function Calendar() {
         date: date
       }]);
     }
-  }, [dayViewDay])
+  }, [dayViewDay]);
 
   const handleViewChange = (e) => {
-    console.log('view mode', e.target.value)
     setviewMode(e.target.value);
     if (e.target.value === 'day') {
-      handleDayView(activeWeek.startOf('week'))
+      handleDayView(activeWeek.startOf('week'));
     }
   }
 
@@ -160,8 +157,6 @@ function Calendar() {
             </select>
           </div>
         </div>
-        {/* <div className="level-item" >
-          </div> */}
       </nav>
       <div className='calendar-header'><div className='calendar-header__element-first'></div>
         {displayDays.length > 0 ? displayDays.map((day) => (
@@ -188,4 +183,4 @@ function Calendar() {
   )
 }
 
-export default Calendar
+export default Calendar;

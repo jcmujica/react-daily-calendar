@@ -21,15 +21,13 @@ function BulmaCalendar() {
     const element = monthCalendarRef.current;
     if (element) {
       element.bulmaCalendar.on('select', (datepicker) => {
-        console.log(viewMode)
         if (viewMode === 'week') {
           let selected = DateTime.fromFormat(datepicker.data.value(), 'D').ts;
           setactiveWeek(DateTime.fromMillis(parseInt(selected)).startOf('week'));
         } else if (viewMode === 'day') {
           let selected = DateTime.fromFormat(datepicker.data.value(), 'D').ts;
-          setactiveWeek(DateTime.fromMillis(parseInt(selected)).startOf('week'));
-          console.log('bulma', DateTime.fromFormat(datepicker.data.value(), 'D').ts.toString())
           setdayViewDay(DateTime.fromFormat(datepicker.data.value(), 'D').ts.toString());
+          setactiveWeek(DateTime.fromMillis(parseInt(selected)).startOf('week'));
         }
       });
     };
