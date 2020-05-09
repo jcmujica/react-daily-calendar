@@ -12,7 +12,8 @@ function BulmaCalendar() {
       weekStart: 1,
       showClearButton: false,
       dataIsRange: false,
-      showHeader: false
+      showHeader: false,
+      enableYearSwitch: true
     });
     calendars.forEach((calendar) => {
       calendar.on('date:selected', (date) => {

@@ -15,11 +15,12 @@ function Modal(props) {
   const [startOfDay, setStartOfDay] = useState();
   const [deleteStage, setDeleteStage] = useState('');
   const [day, setDay] = useState([]);
+  const [prevEndTime, setPrevEndTime] = useState('');
   const [modalInfo, setModalInfo] = useState({
     title: '',
     fields: [
       { label: 'Name', name: 'name', type: 'text', valueKey: 'name' },
-      { label: 'Description', name: 'desc', type: 'text', valueKey: 'name' }
+      { label: 'Description', name: 'desc', type: 'textarea', valueKey: 'name' }
     ]
   });
 
@@ -177,20 +178,125 @@ function Modal(props) {
     let field = e.target;
     let newStartTime;
     let newEndTime;
-    if (field.value) {
+    let inputTime = e.target.value
+
+    if (inputTime) {
       if (field.id === "startTime") {
-        newStartTime = DateTime.fromMillis(timeToDateTime(field.value));
+        newStartTime = DateTime.fromMillis(timeToDateTime(inputTime));
         newEndTime = DateTime.fromMillis(parseInt(endTime));
+        let s_endTime = DateTime.fromMillis(parseInt(endTime)).toLocaleString(DateTime.TIME_24_SIMPLE);
         if (newStartTime >= newEndTime) {
+          if (DateTime.fromMillis(parseInt(startTime)).toLocaleString(DateTime.TIME_24_SIMPLE).split(':')[0] === '12') {
+            setStartTime(timeToDateTime(`11:${inputTime.split(':')[1]}`));
+          }
         } else {
-          setStartTime(timeToDateTime(field.value));
+          console.log(typeof inputTime.split(':')[1].split('')[0]);
+          let hour = inputTime.split(':')[0];
+          let minute = inputTime.split(':')[1].split('')[0];
+          if (minute === '4' || minute === '5') {
+            if (s_endTime.split('')[0] === hour) {
+              if (s_endTime.split('')[1] > inputTime.split(':')[1]) {
+                inputTime = `${inputTime.split(':')[0]}:45`;
+              } else {
+                inputTime = s_endTime;
+              }
+            } else {
+              inputTime = `${inputTime.split(':')[0]}:45`;
+            }
+          } else if (minute === '3') {
+            if (s_endTime.split('')[0] === hour) {
+              if (s_endTime.split('')[1] > inputTime.split(':')[1]) {
+                inputTime = `${inputTime.split(':')[0]}:30`;
+              } else {
+                inputTime = s_endTime;
+              }
+            } else {
+              inputTime = `${inputTime.split(':')[0]}:30`;
+            }
+          } else if (minute === '2' || minute === '1') {
+            if (s_endTime.split('')[0] === hour) {
+              if (s_endTime.split('')[1] > inputTime.split(':')[1]) {
+                inputTime = `${inputTime.split(':')[0]}:15`;
+              } else {
+                inputTime = s_endTime;
+              }
+            } else {
+              inputTime = `${inputTime.split(':')[0]}:15`;
+            }
+          } else if (minute === '0') {
+            if (s_endTime.split('')[0] === hour) {
+              if (s_endTime.split('')[1] > inputTime.split(':')[1]) {
+                inputTime = `${inputTime.split(':')[0]}:00`;
+              } else {
+                inputTime = s_endTime;
+              }
+            } else {
+              inputTime = `${inputTime.split(':')[0]}:00`;
+            }
+          }
+          setStartTime(timeToDateTime(inputTime));
         }
       } else if (field.id === "endTime") {
-        newEndTime = DateTime.fromMillis(timeToDateTime(field.value));
+        newEndTime = DateTime.fromMillis(timeToDateTime(inputTime));
         newStartTime = DateTime.fromMillis(parseInt(startTime));
+        let s_startTime = DateTime.fromMillis(parseInt(startTime)).toLocaleString(DateTime.TIME_24_SIMPLE);
+
+        console.log('new end time', inputTime);
+        console.log('old end time', DateTime.fromMillis(parseInt(endTime)).toLocaleString(DateTime.TIME_24_SIMPLE).split(':')[0]);
         if (newEndTime <= newStartTime) {
+          if (DateTime.fromMillis(parseInt(endTime)).toLocaleString(DateTime.TIME_24_SIMPLE).split(':')[0] === '11') {
+            setEndTime(timeToDateTime(`13:${inputTime.split(':')[1]}`));
+          }
         } else {
-          setEndTime(timeToDateTime(field.value));
+
+          console.log(typeof inputTime.split(':')[1].split('')[0]);
+          let hour = inputTime.split(':')[0];
+          let minute = inputTime.split(':')[1].split('')[0];
+          if (minute === '4' || minute === '5') {
+            if (s_startTime.split('')[0] === hour) {
+              if (s_startTime.split('')[1] < inputTime.split(':')[1]) {
+                inputTime = `${inputTime.split(':')[0]}:45`;
+              } else {
+                inputTime = s_startTime;
+              }
+            } else {
+              inputTime = `${inputTime.split(':')[0]}:45`;
+            }
+          } else if (minute === '3') {
+            if (s_startTime.split('')[0] === hour) {
+              if (s_startTime.split('')[1] < inputTime.split(':')[1]) {
+                inputTime = `${inputTime.split(':')[0]}:30`;
+              } else {
+                inputTime = s_startTime;
+              }
+            } else {
+              inputTime = `${inputTime.split(':')[0]}:30`;
+            }
+          } else if (minute === '2' || minute === '1') {
+            if (s_startTime.split('')[0] === hour) {
+              if (s_startTime.split('')[1] < inputTime.split(':')[1]) {
+                inputTime = `${inputTime.split(':')[0]}:15`;
+              } else {
+                inputTime = s_startTime;
+              }
+            } else {
+              inputTime = `${inputTime.split(':')[0]}:15`;
+            }
+          } else if (minute === '0') {
+            if (s_startTime.split('')[0] === hour) {
+              if (s_startTime.split('')[1] < inputTime.split(':')[1]) {
+                inputTime = `${inputTime.split(':')[0]}:00`;
+              } else {
+                inputTime = s_startTime;
+              }
+            } else {
+              inputTime = `${inputTime.split(':')[0]}:00`;
+            }
+          }
+
+
+
+          setEndTime(timeToDateTime(inputTime));
         }
       }
     }

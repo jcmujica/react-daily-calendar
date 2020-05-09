@@ -16,6 +16,7 @@ function CalendarContextProvider(props) {
   const [events, setEvents] = useState([]);
   const [viewMode, setviewMode] = useState('week');
   const [dayViewDay, setDayViewDay] = useState('');
+  const [scrolled, setScrolled] = useState(false);
 
   const handleCreate = (e) => {
     setactiveEvent(e.target.id);
@@ -44,11 +45,13 @@ function CalendarContextProvider(props) {
       handleEdit,
       newEvent,
       modalMode,
+      scrolled,
       setactiveModal: setActiveModal,
       setactiveWeek: setActiveWeek,
       setdayViewDay: setDayViewDay,
       setevents: setEvents,
       setNewEvent,
+      setScrolled,
       setviewMode,
       timeRange,
       viewMode,

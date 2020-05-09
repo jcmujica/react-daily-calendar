@@ -3,12 +3,8 @@
 }
 .calendar {
   &-modal {
-    height: 90vh;
+    // height: 90vh;
   }
-  // #startTime {
-  //   background-color: red;
-  // }
-  // min-width: 800px;
   overflow-x: auto;
   &-leftColumn {
     padding-right: 0;
@@ -50,6 +46,20 @@
       padding: 10px;
       .chk-input {
         margin-right: 10px;
+      }
+    }
+    &__toggleBar {
+      display: block;
+      width: 35px;
+      overflow: hidden;
+      .datepicker {
+        display: none;
+      }
+      .calendar-sidebar__control {
+        display: none;
+      }
+      .datetimepicker-footer {
+        display: none;
       }
     }
   }

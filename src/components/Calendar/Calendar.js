@@ -7,7 +7,7 @@ import { CalendarContext } from '../../contexts/CalendarContext';
 
 
 function Calendar() {
-  const { timeRange, setactiveModal, activeModal, modalMode, activeWeek, setactiveWeek, viewMode, setviewMode, dayViewDay, setdayViewDay } = useContext(CalendarContext);
+  const { timeRange, setactiveModal, activeModal, modalMode, activeWeek, setactiveWeek, viewMode, setviewMode, dayViewDay, setdayViewDay, setScrolled } = useContext(CalendarContext);
   const today = DateTime.local();
   const [displayMonthYear, setdisplayMonthYear] = useState(today.startOf('week').toFormat('LLLL yyyy'));
   const [displayDays, setDisplayDays] = useState([]);
@@ -80,6 +80,7 @@ function Calendar() {
   }, [activeWeek, viewMode]);
 
   const handleTimeSpanChange = (action) => {
+    setScrolled(false);
     if (viewMode === 'week') {
       if (action === 'forward') {
         setactiveWeek(activeWeek.plus({ week: 1 }));
@@ -124,6 +125,7 @@ function Calendar() {
   }, [dayViewDay]);
 
   const handleViewChange = (e) => {
+    setScrolled(false);
     setviewMode(e.target.value);
     if (e.target.value === 'day') {
       handleDayView(activeWeek.startOf('week'));

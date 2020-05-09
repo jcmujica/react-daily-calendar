@@ -1,10 +1,12 @@
 import React, { useContext } from 'react';
 import { UserContext } from '../../contexts/UserContext';
+import { LayoutContext } from '../../contexts/LayoutContext';
 import BulmaCalendar from '../BulmaCalendar/BulmaCalendar';
 
 
 function Sidebar() {
   const { users, displayUsers, setdisplayUsers, currentUser, setcurrentUser, usersChanged, setusersChanged } = useContext(UserContext);
+  const { sideBarToggled, setSideBarToggled } = useContext(LayoutContext);
 
   const handleCheck = (e) => {
     let userId = parseInt(e.target.id);
@@ -17,6 +19,11 @@ function Sidebar() {
     }
     setusersChanged(true);
   }
+
+  const handleToggle = () => {
+    setSideBarToggled(!sideBarToggled);
+    console.log(sideBarToggled);
+  };
 
   const handleUserChange = (e) => {
     let newUser = users.filter((user) => user.name === e.target.value);
@@ -66,8 +73,8 @@ function Sidebar() {
         }
         <p className="help">Edit events by using right-click</p>
       </div >
-      <div className="calendar-sidebar__toggle">
-        <i className="fas fa-chevron-left"></i>
+      <div className="calendar-sidebar__toggle" onClick={handleToggle}>
+        {sideBarToggled ? <i className="fas fa-chevron-right"></i> : <i className="fas fa-chevron-left"></i>}
       </div>
     </div>
 

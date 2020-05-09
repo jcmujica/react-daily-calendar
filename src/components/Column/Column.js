@@ -7,8 +7,7 @@ import Event from '../Event/Event';
 
 function Column(props) {
   const scrollPosition = useRef();
-  const scrolled = useRef(false);
-  const { columnHeight, events, handleCreate, centerStartTime, centerEndTime, timeRange } = useContext(CalendarContext);
+  const { columnHeight, events, handleCreate, centerStartTime, centerEndTime, timeRange, scrolled, setScrolled } = useContext(CalendarContext);
   const { displayUsers } = useContext(UserContext);
   const [startIndex, setStartIndex] = useState(0);
   const [endIndex, setEndIndex] = useState(0);
@@ -23,16 +22,16 @@ function Column(props) {
   };
 
   useEffect(() => {
-    if (!scrolled.current) {
-      scrolled.current = true;
+    if (!scrolled) {
+      setScrolled(true);
       scrollPosition.current.scrollIntoView();
     }
-  }, [scrollPosition])
+  }, [scrollPosition]);
 
   useMemo(() => {
     setStartIndex(centerStartTime * (60 / timeRange));
     setEndIndex(centerEndTime * (60 / timeRange));
-  }, [])
+  }, []);
 
   return (
     <div className={view === 'week' ? 'calendar-day' : 'calendar-dayFull'}>
@@ -68,4 +67,4 @@ function Column(props) {
   )
 }
 
-export default Column
+export default Column;
