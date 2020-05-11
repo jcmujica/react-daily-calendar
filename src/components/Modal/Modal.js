@@ -26,6 +26,9 @@ function Modal(props) {
 
   useEffect(() => {
     let startTimeRef = activeEventId
+    if (!startTimeRef) {
+      return
+    }
     if (modalMode === 'edit') {
       startTimeRef = events.filter((event) => event.id === activeEventId)[0].startTime;
     }
@@ -88,6 +91,10 @@ function Modal(props) {
   }, []);
 
   const preFormatTime = (value) => {
+    let input = value;
+    if (typeof input === 'string') {
+      input = parseInt(input);
+    }
     let format = DateTime.fromMillis(parseInt(value)).toLocaleString(DateTime.TIME_24_SIMPLE).split(":");
     let first = format[0];
     let second = format[1];
@@ -113,8 +120,8 @@ function Modal(props) {
       let height = getHeight(sequence);
       let yOffset = getYOffset(startTime.toString(), day);
 
-      console.log('startTime', startTime)
-      console.log('endtTime', endTime)
+
+
       let updModalEvent = {
         ...modalEvent,
         seq: sequence,
@@ -123,6 +130,7 @@ function Modal(props) {
         startTime: startTime,
         endTime: endTime
       }
+
       setevents([
         ...events,
         updModalEvent
@@ -232,19 +240,20 @@ function Modal(props) {
           } else if (lastDigit === 0) {
             inputTime = `${inputTime.split(':')[0]}:00`;
           }
-          setStartTime(timeToDateTime(inputTime));
+          setStartTime(timeToDateTime(inputTime).toString());
         }
       } else if (field.id === "endTime") {
         newEndTime = DateTime.fromMillis(timeToDateTime(inputTime));
         newStartTime = DateTime.fromMillis(parseInt(startTime));
         let s_endTime = DateTime.fromMillis(parseInt(endTime)).toLocaleString(DateTime.TIME_24_SIMPLE);
+  
         let s_startTime = DateTime.fromMillis(parseInt(startTime)).toLocaleString(DateTime.TIME_24_SIMPLE);
         if (s_startTime.split(':')[0].length < 2) {
           s_startTime = `0${s_startTime}`;
         }
 
-        console.log('new end time', inputTime);
-        console.log('old end time', DateTime.fromMillis(parseInt(endTime)).toLocaleString(DateTime.TIME_24_SIMPLE));
+  
+  
         if (newEndTime <= newStartTime) {
           if (DateTime.fromMillis(parseInt(endTime)).toLocaleString(DateTime.TIME_24_SIMPLE).split(':')[0] === '11') {
             setEndTime(timeToDateTime(`13:${inputTime.split(':')[1]}`));
@@ -260,6 +269,7 @@ function Modal(props) {
           } else if (fullMinutes === 30 || lastDigit === 3) {
             if (s_startTime.split(':')[0] === hour) {
               if (parseInt(s_startTime.split(':')[1]) < 30) {
+          
                 inputTime = `${inputTime.split(':')[0]}:30`;
               } else {
                 inputTime = s_endTime;
@@ -267,10 +277,10 @@ function Modal(props) {
             } else {
               inputTime = `${inputTime.split(':')[0]}:30`;
             }
-          } else if (lastDigit === 2 || lastDigit === 1) {
-            if (s_endTime.split(':')[0] === hour) {
-              console.log('here in 15', parseInt(s_endTime.split(':')[1]))
-              if (parseInt(s_endTime.split(':')[1]) < 15) {
+          } else if (fullMinutes === 15 || lastDigit === 2 || lastDigit === 1) {
+            if (s_startTime.split(':')[0] === hour) {
+        
+              if (parseInt(s_startTime.split(':')[1]) < 15) {
                 inputTime = `${inputTime.split(':')[0]}:15`;
               } else {
                 inputTime = s_endTime;
@@ -278,14 +288,15 @@ function Modal(props) {
             } else {
               inputTime = `${inputTime.split(':')[0]}:15`;
             }
-          } else if (lastDigit === 0) {
+          } else if (fullMinutes === 0 || lastDigit === 0) {
             if (s_startTime.split(':')[0] === hour) {
               inputTime = s_startTime;
             } else {
               inputTime = `${inputTime.split(':')[0]}:00`;
             }
           }
-          setEndTime(timeToDateTime(inputTime));
+    
+          setEndTime(timeToDateTime(inputTime).toString());
         }
       }
     }

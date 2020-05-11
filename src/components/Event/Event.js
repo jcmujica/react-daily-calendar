@@ -196,7 +196,7 @@ function Event({ event, day }) {
           backgroundColor: users.filter((el) => el.id === event.owner)[0].settings.color,
           zIndex: event.zIndex
         }}
-        onContextMenu={(e) => handleEdit(e)}
+        onContextMenu={(e) => handleEdit(e, event)}
         onResizeStop={(e, dir, ref, delta) => handleResizeStop(e, dir, ref, delta, event.id, event.height)}
         onDragStop={(e, data) => handleDragStop(data, event.id, event.height)}
 
