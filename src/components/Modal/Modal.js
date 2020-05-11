@@ -113,8 +113,8 @@ function Modal(props) {
       let height = getHeight(sequence);
       let yOffset = getYOffset(startTime.toString(), day);
 
-      console.log('startTime', startTime)
-      console.log('endtTime', endTime)
+      console.log('startTime', typeof startTime)
+      console.log('endtTime', typeof endTime)
       let updModalEvent = {
         ...modalEvent,
         seq: sequence,
