@@ -25,11 +25,7 @@ function Sidebar() {
   };
 
   const handleUserChange = (e) => {
-
-    console.log(e.target.value);
-    console.log(users);
     let newUser = users.filter((user) => user.id === parseInt(e.target.value));
-    console.log(newUser);
     setusersChanged(true);
     setcurrentUser(newUser[0].id);
     setdisplayUsers([newUser[0].id]);
