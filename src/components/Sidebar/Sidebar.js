@@ -22,11 +22,14 @@ function Sidebar() {
 
   const handleToggle = () => {
     setSideBarToggled(!sideBarToggled);
-    console.log(sideBarToggled);
   };
 
   const handleUserChange = (e) => {
-    let newUser = users.filter((user) => user.name === e.target.value);
+
+    console.log(e.target.value);
+    console.log(users);
+    let newUser = users.filter((user) => user.id === parseInt(e.target.value));
+    console.log(newUser);
     setusersChanged(true);
     setcurrentUser(newUser[0].id);
     setdisplayUsers([newUser[0].id]);
