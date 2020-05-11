@@ -24,9 +24,9 @@ function CalendarContextProvider(props) {
     setActiveModal(true);
   };
 
-  const handleEdit = (e) => {
+  const handleEdit = (e, event) => {
     e.preventDefault();
-    setactiveEvent(e.target.id);
+    setactiveEvent(event.id);
     setmodalMode('edit');
     setActiveModal(true);
   };
