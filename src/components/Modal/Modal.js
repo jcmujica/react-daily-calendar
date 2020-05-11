@@ -113,11 +113,15 @@ function Modal(props) {
       let height = getHeight(sequence);
       let yOffset = getYOffset(startTime.toString(), day);
 
+      console.log('startTime', startTime)
+      console.log('endtTime', endTime)
       let updModalEvent = {
         ...modalEvent,
         seq: sequence,
         height: height,
         yOffset: yOffset,
+        startTime: startTime,
+        endTime: endTime
       }
       setevents([
         ...events,
@@ -185,117 +189,102 @@ function Modal(props) {
         newStartTime = DateTime.fromMillis(timeToDateTime(inputTime));
         newEndTime = DateTime.fromMillis(parseInt(endTime));
         let s_endTime = DateTime.fromMillis(parseInt(endTime)).toLocaleString(DateTime.TIME_24_SIMPLE);
+        let s_startTime = DateTime.fromMillis(parseInt(startTime)).toLocaleString(DateTime.TIME_24_SIMPLE);
+        if (s_endTime.split(':')[0].length < 2) {
+          s_endTime = `0${s_endTime}`;
+        }
         if (newStartTime >= newEndTime) {
           if (DateTime.fromMillis(parseInt(startTime)).toLocaleString(DateTime.TIME_24_SIMPLE).split(':')[0] === '12') {
             setStartTime(timeToDateTime(`11:${inputTime.split(':')[1]}`));
           }
         } else {
-          console.log(typeof inputTime.split(':')[1].split('')[0]);
           let hour = inputTime.split(':')[0];
-          let minute = inputTime.split(':')[1].split('')[0];
-          if (minute === '4' || minute === '5') {
-            if (s_endTime.split('')[0] === hour) {
-              if (s_endTime.split('')[1] > inputTime.split(':')[1]) {
-                inputTime = `${inputTime.split(':')[0]}:45`;
-              } else {
-                inputTime = s_endTime;
-              }
+          let fullMinutes = inputTime.split(':')[1];
+          let lastDigit = parseInt(fullMinutes.split('')[1]);
+          fullMinutes = parseInt(fullMinutes);
+
+          if (fullMinutes === 45 || (lastDigit >= 4 && fullMinutes !== 15)) {
+            if (s_endTime.split(':')[0] === hour) {
+              inputTime = s_startTime;
             } else {
               inputTime = `${inputTime.split(':')[0]}:45`;
             }
-          } else if (minute === '3') {
-            if (s_endTime.split('')[0] === hour) {
-              if (s_endTime.split('')[1] > inputTime.split(':')[1]) {
+          } else if (fullMinutes === 30 || lastDigit === 3) {
+            if (s_endTime.split(':')[0] === hour) {
+              if (parseInt(s_endTime.split(':')[1]) > 30) {
                 inputTime = `${inputTime.split(':')[0]}:30`;
               } else {
-                inputTime = s_endTime;
+                inputTime = s_startTime;
               }
             } else {
               inputTime = `${inputTime.split(':')[0]}:30`;
             }
-          } else if (minute === '2' || minute === '1') {
-            if (s_endTime.split('')[0] === hour) {
-              if (s_endTime.split('')[1] > inputTime.split(':')[1]) {
+          } else if (lastDigit === 2 || lastDigit === 1) {
+            if (s_endTime.split(':')[0] === hour) {
+              if (parseInt(s_endTime.split(':')[1]) > 15) {
                 inputTime = `${inputTime.split(':')[0]}:15`;
               } else {
-                inputTime = s_endTime;
+                inputTime = s_startTime;
               }
             } else {
               inputTime = `${inputTime.split(':')[0]}:15`;
             }
-          } else if (minute === '0') {
-            if (s_endTime.split('')[0] === hour) {
-              if (s_endTime.split('')[1] > inputTime.split(':')[1]) {
-                inputTime = `${inputTime.split(':')[0]}:00`;
-              } else {
-                inputTime = s_endTime;
-              }
-            } else {
-              inputTime = `${inputTime.split(':')[0]}:00`;
-            }
+          } else if (lastDigit === 0) {
+            inputTime = `${inputTime.split(':')[0]}:00`;
           }
           setStartTime(timeToDateTime(inputTime));
         }
       } else if (field.id === "endTime") {
         newEndTime = DateTime.fromMillis(timeToDateTime(inputTime));
         newStartTime = DateTime.fromMillis(parseInt(startTime));
+        let s_endTime = DateTime.fromMillis(parseInt(endTime)).toLocaleString(DateTime.TIME_24_SIMPLE);
         let s_startTime = DateTime.fromMillis(parseInt(startTime)).toLocaleString(DateTime.TIME_24_SIMPLE);
+        if (s_startTime.split(':')[0].length < 2) {
+          s_startTime = `0${s_startTime}`;
+        }
 
         console.log('new end time', inputTime);
-        console.log('old end time', DateTime.fromMillis(parseInt(endTime)).toLocaleString(DateTime.TIME_24_SIMPLE).split(':')[0]);
+        console.log('old end time', DateTime.fromMillis(parseInt(endTime)).toLocaleString(DateTime.TIME_24_SIMPLE));
         if (newEndTime <= newStartTime) {
           if (DateTime.fromMillis(parseInt(endTime)).toLocaleString(DateTime.TIME_24_SIMPLE).split(':')[0] === '11') {
             setEndTime(timeToDateTime(`13:${inputTime.split(':')[1]}`));
           }
         } else {
-
-          console.log(typeof inputTime.split(':')[1].split('')[0]);
           let hour = inputTime.split(':')[0];
-          let minute = inputTime.split(':')[1].split('')[0];
-          if (minute === '4' || minute === '5') {
-            if (s_startTime.split('')[0] === hour) {
-              if (s_startTime.split('')[1] < inputTime.split(':')[1]) {
-                inputTime = `${inputTime.split(':')[0]}:45`;
-              } else {
-                inputTime = s_startTime;
-              }
-            } else {
-              inputTime = `${inputTime.split(':')[0]}:45`;
-            }
-          } else if (minute === '3') {
-            if (s_startTime.split('')[0] === hour) {
-              if (s_startTime.split('')[1] < inputTime.split(':')[1]) {
+          let fullMinutes = inputTime.split(':')[1];
+          let lastDigit = parseInt(fullMinutes.split('')[1]);
+          fullMinutes = parseInt(fullMinutes);
+
+          if (fullMinutes === 45 || (lastDigit >= 4 && fullMinutes !== 15)) {
+            inputTime = `${inputTime.split(':')[0]}:45`;
+          } else if (fullMinutes === 30 || lastDigit === 3) {
+            if (s_startTime.split(':')[0] === hour) {
+              if (parseInt(s_startTime.split(':')[1]) < 30) {
                 inputTime = `${inputTime.split(':')[0]}:30`;
               } else {
-                inputTime = s_startTime;
+                inputTime = s_endTime;
               }
             } else {
               inputTime = `${inputTime.split(':')[0]}:30`;
             }
-          } else if (minute === '2' || minute === '1') {
-            if (s_startTime.split('')[0] === hour) {
-              if (s_startTime.split('')[1] < inputTime.split(':')[1]) {
+          } else if (lastDigit === 2 || lastDigit === 1) {
+            if (s_endTime.split(':')[0] === hour) {
+              console.log('here in 15', parseInt(s_endTime.split(':')[1]))
+              if (parseInt(s_endTime.split(':')[1]) < 15) {
                 inputTime = `${inputTime.split(':')[0]}:15`;
               } else {
-                inputTime = s_startTime;
+                inputTime = s_endTime;
               }
             } else {
               inputTime = `${inputTime.split(':')[0]}:15`;
             }
-          } else if (minute === '0') {
-            if (s_startTime.split('')[0] === hour) {
-              if (s_startTime.split('')[1] < inputTime.split(':')[1]) {
-                inputTime = `${inputTime.split(':')[0]}:00`;
-              } else {
-                inputTime = s_startTime;
-              }
+          } else if (lastDigit === 0) {
+            if (s_startTime.split(':')[0] === hour) {
+              inputTime = s_startTime;
             } else {
               inputTime = `${inputTime.split(':')[0]}:00`;
             }
           }
-
-
-
           setEndTime(timeToDateTime(inputTime));
         }
       }
