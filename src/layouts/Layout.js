@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useMemo } from 'react';
 import Calendar from '../components/Calendar/Calendar';
 import UserContextProvider from '../contexts/UserContext';
 import CalendarContextProvider from '../contexts/CalendarContext';
@@ -7,6 +7,8 @@ import { LayoutContext } from '../contexts/LayoutContext';
 
 function Layout() {
   const { sideBarToggled } = useContext(LayoutContext);
+  const calendar = useMemo(() => <Calendar />)
+  const sidebar = useMemo(() => <Sidebar />)
 
   return (
     <div>
@@ -14,10 +16,10 @@ function Layout() {
         <CalendarContextProvider>
           <div className="columns">
             <div className={`column calendar-leftColumn is-narrow ${sideBarToggled ? `calendar-sidebar__toggleBar` : ``}`}>
-              <Sidebar />
+              {sidebar}
             </div>
             <div className="column calendar-rightColumn">
-              <Calendar />
+              {calendar}
             </div>
           </div>
         </CalendarContextProvider>
