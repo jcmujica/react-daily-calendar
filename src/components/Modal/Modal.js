@@ -1,21 +1,21 @@
-import React, { useState, useEffect, useContext, useRef, createRef } from 'react'
+import React, { useState, useEffect, useContext, useCallback } from 'react'
 import { DateTime } from 'luxon';
 import { CalendarContext } from '../../contexts/CalendarContext';
 import { v4 as uuid } from 'uuid';
 import { UserContext } from '../../contexts/UserContext';
+import DateInput from '../DateInput/DateInput';
 
 function Modal(props) {
-  const { active, modalMode, week } = props;
-  const { columnHeight, events, setevents, activeEventId, setNewEvent, timeRange } = useContext(CalendarContext);
+  const { week } = props;
+  const { columnHeight, events, setevents, activeEventId, setNewEvent, setactiveWeek, setActiveModal, modalMode } = useContext(CalendarContext);
   const { currentUser } = useContext(UserContext);
-
-  const [startTime, setStartTime] = useState('')
-  const [endTime, setEndTime] = useState('')
+  const [startTime, setStartTime] = useState('');
+  const [endTime, setEndTime] = useState('');
   const [modalEvent, setModalEvent] = useState({});
-  const [startOfDay, setStartOfDay] = useState();
   const [deleteStage, setDeleteStage] = useState('');
   const [day, setDay] = useState([]);
-  const [prevEndTime, setPrevEndTime] = useState('');
+  const [modalSelectedDate, setModalSelectedDate] = useState();
+  const [dateChanged, setDateChanged] = useState(false);
   const [modalInfo, setModalInfo] = useState({
     title: '',
     fields: [
@@ -26,9 +26,6 @@ function Modal(props) {
 
   useEffect(() => {
     let startTimeRef = activeEventId
-    if (!startTimeRef) {
-      return
-    }
     if (modalMode === 'edit') {
       startTimeRef = events.filter((event) => event.id === activeEventId)[0].startTime;
     }
@@ -44,10 +41,10 @@ function Modal(props) {
 
     if (modalMode === 'create') {
       let startTime = activeEventId;
-      setStartTime(activeEventId)
-      setStartOfDay(DateTime.fromMillis(parseInt(startTime)).startOf("day"));
+      setStartTime(activeEventId);
+      setModalSelectedDate(activeEventId);
       let endTime = day[day.indexOf(activeEventId) + 1];
-      setEndTime(endTime)
+      setEndTime(endTime);
 
       setModalInfo({
         ...modalInfo,
@@ -77,7 +74,7 @@ function Modal(props) {
       });
       let editEvent = { ...events[events.findIndex((el) => el.id === activeEventId)] }
       setStartTime(editEvent.startTime);
-      setStartOfDay(DateTime.fromMillis(parseInt(editEvent.startTime)).startOf("day"));
+      setModalSelectedDate(editEvent.startTime);
       setEndTime(editEvent.endTime);
       setModalEvent({
         ...events[events.findIndex((el) => el.id === activeEventId)]
@@ -90,7 +87,39 @@ function Modal(props) {
     };
   }, []);
 
-  const preFormatTime = (value) => {
+  useEffect(() => {
+    if (dateChanged && modalSelectedDate) {
+      setDateChanged(false);
+      let selectedMillis = DateTime.fromFormat(modalSelectedDate, 'MM/dd/yyyy');
+      setactiveWeek(selectedMillis.startOf('week'));
+      setStartTime(selectedMillis.plus({ hours: extractTimeUnit(modalEvent.startTime, 'hour'), minutes: extractTimeUnit(modalEvent.startTime, 'minute') }).ts.toString());
+      setEndTime(selectedMillis.plus({ hours: extractTimeUnit(modalEvent.endTime, 'hour'), minutes: extractTimeUnit(modalEvent.endTime, 'minute') }).ts.toString());
+      let startTimeRef = selectedMillis.ts.toString();
+      let dayArray = [];
+      for (let day in week) {
+        dayArray = [...dayArray, week[day]];
+      };
+      let day = dayArray.filter((day) => day.includes(startTimeRef));
+      if (day.length > 0) {
+        day = day[0];
+      }
+      setDay(day);
+      let editEvent = { ...modalEvent };
+      editEvent.startTime = startTime;
+      editEvent.endTime = endTime;
+      editEvent.seq = getSequence(startTime.toString(), endTime.toString(), day);
+
+      setModalEvent({
+        ...editEvent
+      });
+    }
+  }, [dateChanged])
+
+  const extractTimeUnit = (time, unit) => {
+    return DateTime.fromMillis(parseInt(time))[unit];
+  };
+
+  const millisToString = (value) => {
     let input = value;
     if (typeof input === 'string') {
       input = parseInt(input);
@@ -150,7 +179,7 @@ function Modal(props) {
       ]);
     }
     setNewEvent(true);
-    active(false);
+    setActiveModal(false);
   };
 
   const getSequence = (start, end, array) => {
@@ -166,7 +195,7 @@ function Modal(props) {
   };
 
   const cancelModal = () => {
-    active(false);
+    setActiveModal(false);
     setDeleteStage('');
   };
 
@@ -179,128 +208,31 @@ function Modal(props) {
         ...filteredArray
       ]);
       setDeleteStage('');
-      active(false);
+      setActiveModal(false);
     }
   };
 
-  const handleTimeChange = (e) => {
-    let field = e.target;
-    let newStartTime;
-    let newEndTime;
-    let inputTime = e.target.value
-
-    if (inputTime) {
-      if (field.id === "startTime") {
-        newStartTime = DateTime.fromMillis(timeToDateTime(inputTime));
-        newEndTime = DateTime.fromMillis(parseInt(endTime));
-        let s_endTime = DateTime.fromMillis(parseInt(endTime)).toLocaleString(DateTime.TIME_24_SIMPLE);
-        let s_startTime = DateTime.fromMillis(parseInt(startTime)).toLocaleString(DateTime.TIME_24_SIMPLE);
-        if (s_endTime.split(':')[0].length < 2) {
-          s_endTime = `0${s_endTime}`;
-        }
-        if (newStartTime >= newEndTime) {
-          if (DateTime.fromMillis(parseInt(startTime)).toLocaleString(DateTime.TIME_24_SIMPLE).split(':')[0] === '12') {
-            setStartTime(timeToDateTime(`11:${inputTime.split(':')[1]}`));
-          }
-        } else {
-          let hour = inputTime.split(':')[0];
-          let fullMinutes = inputTime.split(':')[1];
-          let lastDigit = parseInt(fullMinutes.split('')[1]);
-          fullMinutes = parseInt(fullMinutes);
-
-          if (fullMinutes === 45 || (lastDigit >= 4 && fullMinutes !== 15)) {
-            if (s_endTime.split(':')[0] === hour) {
-              inputTime = s_startTime;
-            } else {
-              inputTime = `${inputTime.split(':')[0]}:45`;
-            }
-          } else if (fullMinutes === 30 || lastDigit === 3) {
-            if (s_endTime.split(':')[0] === hour) {
-              if (parseInt(s_endTime.split(':')[1]) > 30) {
-                inputTime = `${inputTime.split(':')[0]}:30`;
-              } else {
-                inputTime = s_startTime;
-              }
-            } else {
-              inputTime = `${inputTime.split(':')[0]}:30`;
-            }
-          } else if (lastDigit === 2 || lastDigit === 1) {
-            if (s_endTime.split(':')[0] === hour) {
-              if (parseInt(s_endTime.split(':')[1]) > 15) {
-                inputTime = `${inputTime.split(':')[0]}:15`;
-              } else {
-                inputTime = s_startTime;
-              }
-            } else {
-              inputTime = `${inputTime.split(':')[0]}:15`;
-            }
-          } else if (lastDigit === 0) {
-            inputTime = `${inputTime.split(':')[0]}:00`;
-          }
-          setStartTime(timeToDateTime(inputTime).toString());
-        }
-      } else if (field.id === "endTime") {
-        newEndTime = DateTime.fromMillis(timeToDateTime(inputTime));
-        newStartTime = DateTime.fromMillis(parseInt(startTime));
-        let s_endTime = DateTime.fromMillis(parseInt(endTime)).toLocaleString(DateTime.TIME_24_SIMPLE);
-
-        let s_startTime = DateTime.fromMillis(parseInt(startTime)).toLocaleString(DateTime.TIME_24_SIMPLE);
-        if (s_startTime.split(':')[0].length < 2) {
-          s_startTime = `0${s_startTime}`;
-        }
-
-
-
-        if (newEndTime <= newStartTime) {
-          if (DateTime.fromMillis(parseInt(endTime)).toLocaleString(DateTime.TIME_24_SIMPLE).split(':')[0] === '11') {
-            setEndTime(timeToDateTime(`13:${inputTime.split(':')[1]}`));
-          }
-        } else {
-          let hour = inputTime.split(':')[0];
-          let fullMinutes = inputTime.split(':')[1];
-          let lastDigit = parseInt(fullMinutes.split('')[1]);
-          fullMinutes = parseInt(fullMinutes);
-
-          if (fullMinutes === 45 || (lastDigit >= 4 && fullMinutes !== 15)) {
-            inputTime = `${inputTime.split(':')[0]}:45`;
-          } else if (fullMinutes === 30 || lastDigit === 3) {
-            if (s_startTime.split(':')[0] === hour) {
-              if (parseInt(s_startTime.split(':')[1]) < 30) {
-
-                inputTime = `${inputTime.split(':')[0]}:30`;
-              } else {
-                inputTime = s_endTime;
-              }
-            } else {
-              inputTime = `${inputTime.split(':')[0]}:30`;
-            }
-          } else if (fullMinutes === 15 || lastDigit === 2 || lastDigit === 1) {
-            if (s_startTime.split(':')[0] === hour) {
-
-              if (parseInt(s_startTime.split(':')[1]) < 15) {
-                inputTime = `${inputTime.split(':')[0]}:15`;
-              } else {
-                inputTime = s_endTime;
-              }
-            } else {
-              inputTime = `${inputTime.split(':')[0]}:15`;
-            }
-          } else if (fullMinutes === 0 || lastDigit === 0) {
-            if (s_startTime.split(':')[0] === hour) {
-              inputTime = s_startTime;
-            } else {
-              inputTime = `${inputTime.split(':')[0]}:00`;
-            }
-          }
-
-          setEndTime(timeToDateTime(inputTime).toString());
-        }
-      }
+  const handleStartTimeChange = useCallback((e) => {
+    let startTime = e.target.value;
+    setStartTime(startTime);
+    if (startTime >= endTime) {
+      setEndTime(day[day.findIndex((time) => time === startTime) + 1]);
     }
+  }, [setStartTime, setEndTime]);
+
+  const handleEndTimeChange = (e) => {
+    setEndTime(e.target.value);
   };
 
-  const timeToDateTime = (time) => {
-    return startOfDay.plus({ hours: parseInt(time.split(':')[0]), minutes: parseInt(time.split(':')[1]) }).ts;
+  const getDurationString = (start, end, array) => {
+    let length = (getSequence(start, end, array).length - 1) * 15;
+    let string = '';
+    if (length / 60 < 1) {
+      string = `${length} min`;
+    } else {
+      string = `${length / 60} hr`;
+    }
+    return string;
   };
 
   return (
@@ -336,41 +268,61 @@ function Modal(props) {
                   </div>
                 </div>
               )) : null}
-
-            <div key="startTime" className="field is-horizontal">
+            <div key="date" className="field is-horizontal">
               <div className="field-label is-small">
-                <label className="label">Start time</label>
+                <label className="label">On</label>
               </div>
               <div className="field-body">
                 <div className="field">
-                  <div className="control is-expanded" key={`control_startTime`}>
-                    <input
-                      value={preFormatTime(startTime)}
-                      className="input is-small"
-                      id="startTime"
-                      type="time"
-                      step={timeRange * 60}
-                      onChange={handleTimeChange}
+                  <div className="control is-expanded" key={`control_day`}>
+                    <DateInput
+                      displayMode="dialog"
+                      className="calendar-modal__datepicker"
+                      modalSelectedDate={modalSelectedDate}
+                      setModalSelectedDate={setModalSelectedDate}
+                      dateChanged={dateChanged}
+                      setDateChanged={setDateChanged}
                     />
                   </div>
                 </div>
               </div>
             </div>
-            <div key="endTime" className="field is-horizontal">
+            <div key="startTime" className="field is-horizontal">
               <div className="field-label is-small">
-                <label className="label">End time</label>
+                <label className="label">From</label>
               </div>
               <div className="field-body">
                 <div className="field">
-                  <div className="control is-expanded" key={`control_endTime`}>
-                    <input
-                      value={preFormatTime(endTime)}
-                      className="input is-small"
-                      id="endTime"
-                      type="time"
-                      step={timeRange * 60}
-                      onChange={handleTimeChange}
-                    />
+                  <div className="select is-small is-fullwidth">
+                    <select onChange={(e) => handleStartTimeChange(e)} value={startTime}>
+                      {day.map((time, i) => (
+                        i !== (day.length - 1) ?
+                          <option
+                            id={time}
+                            key={time}
+                            value={time}
+                          >{millisToString(time)}
+                          </option> : null)
+                      )}
+                    </select>
+                  </div>
+                </div>
+                <div className="field-label is-small">
+                  <label className="label">To</label>
+                </div>
+                <div className="field">
+                  <div className="select is-small is-fullwidth">
+                    <select onChange={(e) => handleEndTimeChange(e)} value={endTime} className="is-small">
+                      {day.map((time) => (
+                        time > startTime ?
+                          <option
+                            id={time}
+                            key={time}
+                            value={time}
+                          >{`${millisToString(time)} (${getDurationString(startTime, time, day)})`}
+                          </option> : null
+                      ))}
+                    </select>
                   </div>
                 </div>
               </div>

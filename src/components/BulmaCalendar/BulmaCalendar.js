@@ -3,12 +3,12 @@ import { DateTime } from 'luxon';
 import { CalendarContext } from '../../contexts/CalendarContext';
 import bulmaCalendar from '../../../node_modules/bulma-calendar/dist/js/bulma-calendar';
 
-function BulmaCalendar() {
+function BulmaCalendar({ displayMode }) {
   const monthCalendarRef = useRef();
   const { setactiveWeek, viewMode, setdayViewDay } = useContext(CalendarContext);
   useEffect(() => {
     const calendars = bulmaCalendar.attach('[type="date"]', {
-      displayMode: 'inline',
+      displayMode: displayMode,
       weekStart: 1,
       showClearButton: false,
       dataIsRange: false,
@@ -33,7 +33,7 @@ function BulmaCalendar() {
       });
     };
 
-  }, [viewMode]);
+  }, [viewMode, displayMode, setactiveWeek, setdayViewDay]);
   return (
     <div className="calendar-bulmaCalendar">
       <input ref={monthCalendarRef} type="date" />

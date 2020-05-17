@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useMemo } from 'react';
+import React, { useState, useEffect, useContext, useMemo, useCallback, useRef } from 'react';
 import { DateTime, Duration } from 'luxon';
 import Modal from '../Modal/Modal';
 import Grid from '../Grid/Grid';
@@ -7,79 +7,90 @@ import { CalendarContext } from '../../contexts/CalendarContext';
 
 
 function Calendar() {
-  const { timeRange, setactiveModal, activeModal, modalMode, activeWeek, setactiveWeek, viewMode, setviewMode, dayViewDay, setdayViewDay, setScrolled } = useContext(CalendarContext);
+  console.log('Calendar in')
+  const { timeRange, activeModal, activeWeek, setactiveWeek, viewMode, setviewMode, dayViewDay, setdayViewDay, setScrolled } = useContext(CalendarContext);
   const today = DateTime.local();
   const [displayMonthYear, setdisplayMonthYear] = useState(today.startOf('week').toFormat('LLLL yyyy'));
   const [displayDays, setDisplayDays] = useState([]);
-  const [week, setweek] = useState([[], [], [], [], [], [], []]);
+  const [globalWeek, setGlobalWeek] = useState([[], [], [], [], [], [], []]);
   const cellDuration = Duration.fromObject({ minutes: timeRange });
   const start = today.startOf('day');
   const end = today.endOf('day');
   const range = Math.ceil(end.diff(start, ['hours']).hours);
+  const currentWeek = useRef(activeWeek);
 
 
   useMemo(() => {
-    /* Start of week array creation */
-    let dur = cellDuration;
-    let rate = 60 / timeRange;
-    let slotRange = (range * rate);
-    let week = [[], [], [], [], [], [], []];
-    let weekDay = '';
-    for (let k = 0; k < week.length; k++) {
-      weekDay = activeWeek.plus({ days: k });
-      for (let i = 0; i <= slotRange; i++) {
-        if (i !== slotRange) {
-          week[k].push(weekDay.plus(dur * i).toMillis().toString());
-        } else {
-          week[k].push(weekDay.plus((dur - 1) * i).toMillis().toString());
+    console.log('calendar memo', activeWeek)
+    if (currentWeek.current.ts !== activeWeek.ts || globalWeek[0].length < 1) {
+
+      /* Start of week array creation */
+      let dur = cellDuration;
+      let rate = 60 / timeRange;
+      let slotRange = (range * rate);
+      let week = [[], [], [], [], [], [], []];
+      let weekDay = '';
+      for (let k = 0; k < week.length; k++) {
+        weekDay = activeWeek.plus({ days: k });
+        for (let i = 0; i <= slotRange; i++) {
+          if (i !== slotRange) {
+            week[k].push(weekDay.plus(dur * i).toMillis().toString());
+          } else {
+            week[k].push(weekDay.plus((dur - 1) * i).toMillis().toString());
+          }
         }
       }
-    }
-    let controlDay = [...week[0]];
-    controlDay = controlDay.map(day => DateTime.fromMillis(parseInt(day)).toLocaleString(DateTime.TIME_SIMPLE));
-    week.unshift(controlDay);
+      let controlDay = [...week[0]];
+      controlDay = controlDay.map(day => DateTime.fromMillis(parseInt(day)).toLocaleString(DateTime.TIME_SIMPLE));
+      week.unshift(controlDay);
 
-    /* End of week array creation */
-    /* Start of formatted day display */
+      /* End of week array creation */
+      /* Start of formatted day display */
 
-    let dayDisplay = []
-    for (let i = 0; i < 7; i++) {
-      let dayOfWeek = activeWeek.plus({ days: i })
-      let dayDisplayFormat = {
-        letters: dayOfWeek.toFormat('EEE'),
-        number: dayOfWeek.toFormat('dd')
-      }
-      dayDisplay = [...dayDisplay, {
-        formatted: dayDisplayFormat,
-        date: dayOfWeek
-      }]
-    };
-    /* End of formatted day display */
+      let dayDisplay = []
+      for (let i = 0; i < 7; i++) {
+        let dayOfWeek = activeWeek.plus({ days: i })
+        let dayDisplayFormat = {
+          letters: dayOfWeek.toFormat('EEE'),
+          number: dayOfWeek.toFormat('dd')
+        }
+        dayDisplay = [...dayDisplay, {
+          formatted: dayDisplayFormat,
+          date: dayOfWeek
+        }]
+      };
+      /* End of formatted day display */
 
-    /* Start of Month and Year Display */
-    let firstMonth = activeWeek.startOf('week').toFormat('LLLL');
-    let secondMonth = activeWeek.endOf('week').toFormat('LLLL');
-    let firstYear = activeWeek.startOf('week').toFormat('yyyy');
-    let secondYear = activeWeek.endOf('week').toFormat('yyyy');
-    let formattedMonthYear = '';
-    if (firstMonth !== secondMonth) {
-      if (firstYear !== secondYear) {
-        formattedMonthYear = `${firstMonth} ${firstYear} / ${secondMonth} ${secondYear}`
+      /* Start of Month and Year Display */
+      let firstMonth = activeWeek.startOf('week').toFormat('LLLL');
+      let secondMonth = activeWeek.endOf('week').toFormat('LLLL');
+      let firstYear = activeWeek.startOf('week').toFormat('yyyy');
+      let secondYear = activeWeek.endOf('week').toFormat('yyyy');
+      let formattedMonthYear = '';
+      if (firstMonth !== secondMonth) {
+        if (firstYear !== secondYear) {
+          formattedMonthYear = `${firstMonth} ${firstYear} / ${secondMonth} ${secondYear}`
+        } else {
+          formattedMonthYear = `${firstMonth}/${secondMonth} ${firstYear}`
+        }
       } else {
-        formattedMonthYear = `${firstMonth}/${secondMonth} ${firstYear}`
+        formattedMonthYear = activeWeek.startOf('week').toFormat('LLLL yyyy')
       }
-    } else {
-      formattedMonthYear = activeWeek.startOf('week').toFormat('LLLL yyyy')
+      /* End of Month and Year Display */
+      setGlobalWeek(week);
+      if (viewMode === 'week') {
+        setDisplayDays(dayDisplay);
+      }
+      setdisplayMonthYear(activeWeek.startOf('week').toFormat('LLLL yyyy'));
     }
-    /* End of Month and Year Display */
-    setweek(week);
-    if (viewMode === 'week') {
-      setDisplayDays(dayDisplay);
-    }
-    setdisplayMonthYear(activeWeek.startOf('week').toFormat('LLLL yyyy'));
-  }, [activeWeek, viewMode]);
+  }, [activeWeek, viewMode, cellDuration, globalWeek, range, timeRange]);
 
-  const handleTimeSpanChange = (action) => {
+  const handleDayView = useCallback((date) => {
+    setviewMode('day');
+    setdayViewDay(date.ts.toString());
+  }, [setviewMode, setdayViewDay]);
+
+  const handleTimeSpanChange = useCallback((action) => {
     setScrolled(false);
     if (viewMode === 'week') {
       if (action === 'forward') {
@@ -104,14 +115,11 @@ function Calendar() {
         setactiveWeek(today.startOf('week'));
       }
     }
-  }
+  }, [viewMode, handleDayView, setactiveWeek]);
 
-  const handleDayView = (date) => {
-    setviewMode('day');
-    setdayViewDay(date.ts.toString());
-  }
 
   useEffect(() => {
+    console.log('dayViewDay', dayViewDay)
     if (dayViewDay) {
       let date = DateTime.fromMillis(parseInt(dayViewDay));
       setDisplayDays([{
@@ -136,10 +144,7 @@ function Calendar() {
     <div className='calendar'>
       {activeModal ?
         <Modal
-          week={week}
-          duration={cellDuration}
-          active={setactiveModal}
-          modalMode={modalMode}
+          week={globalWeek}
         /> :
         null}
       <nav className="level calendar-weekControl">
@@ -179,7 +184,7 @@ function Calendar() {
       </div>
       <Grid
         cellRange={timeRange}
-        week={week}
+        week={globalWeek}
       />
     </div>
   )

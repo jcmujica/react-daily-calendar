@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import './App.scss';
 import '../node_modules/@fortawesome/fontawesome-free/css/all.css'
 import LayoutContextProvider from './contexts/LayoutContext';

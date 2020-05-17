@@ -33,7 +33,9 @@ function Sidebar() {
 
   return (
     <div className='calendar-sidebar'>
-      <BulmaCalendar />
+      <BulmaCalendar
+        displayMode='inline'
+      />
       <div className="calendar-sidebar__control">
         <div className="field">
           <label className="label">Switch User</label>

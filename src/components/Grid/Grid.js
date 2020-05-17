@@ -4,6 +4,7 @@ import Column from '../Column/Column';
 import { v4 as uuid } from 'uuid';
 
 function Grid(props) {
+  console.log('Grid in')
   const { dayViewDay, viewMode } = useContext(CalendarContext);
   const { week } = props;
   const [displayWeek, setDisplayWeek] = useState(week);

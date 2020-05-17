@@ -1,9 +1,35 @@
 .columns {
   height: 100vh;
 }
+.datetimepicker-dummy .datetimepicker-dummy-wrapper {
+  border: 1px solid #dbdbdb;
+  border-radius: 2px;
+  box-shadow: inset 0 0.0625em 0.125em rgba(10, 10, 10, 0.05);
+  height: 30px;
+}
+
+.datetimepicker-dummy .datetimepicker-dummy-wrapper .datetimepicker-dummy-input:first-child {
+  font-size: 0.75rem;
+  height: 30px;
+}
+.datetimepicker-dummy {
+  height: 30px;
+}
+.datetimepicker-dummy.is-primary::before,
+.datetimepicker-dummy.is-primary:before {
+  height: 0.75rem;
+}
+.datetimepicker-dummy::before,
+.datetimepicker-dummy:before {
+  width: 0.75rem;
+}
+.datetimepicker-clear-button {
+  display: none;
+}
 .calendar {
   &-modal {
-    // height: 90vh;
+    &__datepicker {
+    }
   }
   overflow-x: auto;
   &-leftColumn {

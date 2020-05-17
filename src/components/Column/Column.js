@@ -26,12 +26,12 @@ function Column(props) {
       setScrolled(true);
       scrollPosition.current.scrollIntoView();
     }
-  }, [scrollPosition]);
+  }, [scrollPosition, scrolled, setScrolled]);
 
   useMemo(() => {
     setStartIndex(centerStartTime * (60 / timeRange));
     setEndIndex(centerEndTime * (60 / timeRange));
-  }, []);
+  }, [centerEndTime, centerStartTime, timeRange]);
 
   return (
     <div className={view === 'week' ? 'calendar-day' : 'calendar-dayFull'}>

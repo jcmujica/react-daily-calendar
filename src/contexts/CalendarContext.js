@@ -46,7 +46,7 @@ function CalendarContextProvider(props) {
       newEvent,
       modalMode,
       scrolled,
-      setactiveModal: setActiveModal,
+      setActiveModal,
       setactiveWeek: setActiveWeek,
       setdayViewDay: setDayViewDay,
       setevents: setEvents,

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react'
+import React, { useState, useEffect, useContext, useCallback } from 'react'
 import { Rnd } from 'react-rnd'
 import { UserContext } from '../../contexts/UserContext';
 import { CalendarContext } from '../../contexts/CalendarContext';
@@ -9,7 +9,7 @@ function Event({ event, day }) {
   const [zIndexState, setzIndexState] = useState(0);
   const { users, displayUsers, setdisplayUsers, currentUser, setcurrentUser, usersChanged, setusersChanged } = useContext(UserContext);
 
-  const getCollisions = (events = [], day) => {
+  const getCollisions = useCallback((events = [], day) => {
     let sorted = [];
     let width;
     let updEvents;
@@ -72,7 +72,7 @@ function Event({ event, day }) {
     }
     setzIndexState(zIndex);
     return updWidths
-  };
+  }, [events, day]);
 
   const handleResizeStop = (e, dir, ref, delta, id, height) => {
     let updEvents = [...events];
@@ -164,7 +164,7 @@ function Event({ event, day }) {
         ...updWidths
       ])
     }
-  }, [newEvent]);
+  }, [newEvent, getCollisions]);
 
   useEffect(() => {
     let updWidths = [];
@@ -176,7 +176,7 @@ function Event({ event, day }) {
       ])
 
     }
-  }, [usersChanged]);
+  }, [usersChanged, getCollisions]);
 
   return (
     <>
