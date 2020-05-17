@@ -3,13 +3,8 @@ import { DateTime, Duration } from 'luxon';
 import Modal from '../Modal/Modal';
 import Grid from '../Grid/Grid';
 import { CalendarContext } from '../../contexts/CalendarContext';
-import useTraceUpdate from '../../hooks/useTraceUpdate'
 
-
-
-function Calendar() {
-  console.log('Calendar in')
-  // useTraceUpdate(props);
+const Calendar = React.memo(() => {
   const { timeRange, setactiveModal, activeModal, modalMode, activeWeek, setactiveWeek, viewMode, setviewMode, dayViewDay, setdayViewDay, setScrolled } = useContext(CalendarContext);
   const today = DateTime.local();
   const [displayMonthYear, setdisplayMonthYear] = useState(today.startOf('week').toFormat('LLLL yyyy'));
@@ -24,10 +19,6 @@ function Calendar() {
 
 
   useMemo(() => {
-    console.log('Memo ran')
-    console.log('Memo ran: ', activeWeek)
-    console.log('Memo ran: ', viewMode)
-
     /* Start of week array creation */
     let dur = cellDuration;
     let rate = 60 / timeRange;
@@ -193,6 +184,6 @@ function Calendar() {
       />
     </div>
   )
-}
+});
 
 export default Calendar;
