@@ -12,7 +12,7 @@
     "gh-pages": "^2.2.0",
     "logrocket": "^1.0.7",
     "luxon": "^1.23.0",
-    "node-sass": "^4.14.1",
+    "node-sass": "^7.0.0",
     "re-resizable": "^6.3.2",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
